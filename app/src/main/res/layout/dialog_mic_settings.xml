@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="#2a2a2a">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="🎤 Microphone Settings"
+        android:textColor="#ffffff"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Microphone Selection -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select Microphone:"
+        android:textColor="#ffffff"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <Spinner
+        android:id="@+id/microphoneSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/circle_background_small"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp" />
+
+    <!-- Input Volume -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Input Volume:"
+        android:textColor="#ffffff"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🔇"
+            android:textSize="18sp"
+            android:layout_marginEnd="8dp" />
+
+        <SeekBar
+            android:id="@+id/inputVolumeSeekBar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:max="100"
+            android:progress="80"
+            android:progressTint="#00FF00"
+            android:thumbTint="#00FF00" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🔊"
+            android:textSize="18sp"
+            android:layout_marginStart="8dp" />
+
+        <TextView
+            android:id="@+id/inputVolumeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="80%"
+            android:textColor="#ffffff"
+            android:textSize="14sp"
+            android:layout_marginStart="8dp"
+            android:minWidth="40dp"
+            android:gravity="center" />
+
+    </LinearLayout>
+
+    <!-- Microphone Sensitivity -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Microphone Sensitivity:"
+        android:textColor="#ffffff"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📱"
+            android:textSize="18sp"
+            android:layout_marginEnd="8dp" />
+
+        <SeekBar
+            android:id="@+id/sensitivitySeekBar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:max="100"
+            android:progress="50"
+            android:progressTint="#FFFF00"
+            android:thumbTint="#FFFF00" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🎤"
+            android:textSize="18sp"
+            android:layout_marginStart="8dp" />
+
+        <TextView
+            android:id="@+id/sensitivityText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="50%"
+            android:textColor="#ffffff"
+            android:textSize="14sp"
+            android:layout_marginStart="8dp"
+            android:minWidth="40dp"
+            android:gravity="center" />
+
+    </LinearLayout>
+
+    <!-- Audio Format Selection -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Audio Quality:"
+        android:textColor="#ffffff"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <RadioGroup
+        android:id="@+id/audioQualityGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <RadioButton
+            android:id="@+id/qualityLow"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Low (8kHz)"
+            android:textColor="#ffffff"
+            android:textSize="12sp"
+            android:buttonTint="#00FF00" />
+
+        <RadioButton
+            android:id="@+id/qualityMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Medium (16kHz)"
+            android:textColor="#ffffff"
+            android:textSize="12sp"
+            android:checked="true"
+            android:buttonTint="#00FF00" />
+
+        <RadioButton
+            android:id="@+id/qualityHigh"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="High (44kHz)"
+            android:textColor="#ffffff"
+            android:textSize="12sp"
+            android:buttonTint="#00FF00" />
+
+    </RadioGroup>
+
+    <!-- Test Microphone -->
+    <Button
+        android:id="@+id/testMicButton"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="🎤 Test Microphone"
+        android:textColor="#ffffff"
+        android:textSize="14sp"
+        android:background="@drawable/circle_background_small"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Level Indicator -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Audio Level:"
+        android:textColor="#ffffff"
+        android:textSize="14sp"
+        android:layout_marginBottom="8dp" />
+
+    <ProgressBar
+        android:id="@+id/audioLevelBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:max="100"
+        android:progress="0"
+        android:progressTint="#00FF00"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Dialog Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/resetButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset"
+            android:textColor="#ffffff"
+            android:background="@drawable/circle_background_small"
+            android:layout_marginEnd="16dp" />
+
+        <Button
+            android:id="@+id/saveButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save Settings"
+            android:textColor="#ffffff"
+            android:background="@drawable/circle_background_small"
+            android:layout_marginEnd="16dp" />
+
+        <Button
+            android:id="@+id/closeMicButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Close"
+            android:textColor="#ffffff"
+            android:background="@drawable/circle_background_small" />
+
+    </LinearLayout>
+
+</LinearLayout> 

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp"
+    android:gravity="center_vertical">
+
+    <ImageView
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_person_placeholder"
+        android:tint="@color/white"
+        android:layout_marginEnd="8dp" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/specialistName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Specialist Name"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/specialistPlaytime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Playtime: 0h"
+            android:textColor="@color/light_gray"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="end">
+
+        <TextView
+            android:id="@+id/specialistKills"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kills: 0"
+            android:textColor="@color/light_gray"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/specialistKd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="K/D: 0.00"
+            android:textColor="@color/light_gray"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/specialistKillsPerMin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kills/min: 0.00"
+            android:textColor="@color/light_gray"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+</LinearLayout> 

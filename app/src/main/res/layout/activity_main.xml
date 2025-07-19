@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/krays_background"
+    tools:context=".MainActivity">
+
+    <!-- Semi-transparent overlay for better UI visibility -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#66000000" />
+
+    <!-- Top Bar with Icons - Below GAMING ROOM -->
+    <LinearLayout
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/pulsingRingText"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@android:color/transparent">
+
+        <!-- Left Side Icons Container -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <!-- User Count Button -->
+        <FrameLayout
+            android:id="@+id/btnTopUserCount"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/circle_button_red"
+            android:clickable="true"
+                android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:src="@android:drawable/ic_menu_myplaces"
+                android:tint="@android:color/white" />
+
+            <TextView
+                android:id="@+id/topUserCountBadge"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/circle_background_red"
+                android:gravity="center"
+                android:text="0"
+                android:textColor="@android:color/white"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:visibility="visible" />
+
+        </FrameLayout>
+
+        </LinearLayout>
+
+        <!-- Spacer to push icons to the right -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <!-- Right Side Icons Container -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <!-- Battlefield Stats Button -->
+            <ImageButton
+                android:id="@+id/btnBattlefieldStats"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="Battlefield Stats"
+                android:src="@drawable/ic_battlefield"
+                android:scaleType="fitCenter"
+                android:padding="0dp" />
+
+            <!-- Steam Stats Button -->
+            <ImageButton
+                android:id="@+id/btnSteamStats"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="4dp"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="Steam Stats"
+                android:src="@drawable/ic_steam"
+                android:scaleType="fitCenter"
+                android:padding="0dp" />
+
+            <ImageButton
+                android:id="@+id/videosButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="4dp"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="@string/videos"
+                android:src="@drawable/ic_video_folder"
+                android:scaleType="fitCenter"
+                android:padding="0dp"/>
+
+            <!-- Chess Button -->
+            <ImageButton
+                android:id="@+id/chessButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="4dp"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="@string/chess"
+                android:src="@drawable/ic_chess_logo"
+                android:scaleType="fitCenter"
+                android:padding="0dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- GAMING ROOM Title - At absolute top of screen -->
+        <com.example.zell0.PulsingRingTextView
+            android:id="@+id/pulsingRingText"
+            android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="4dp"
+            android:text="GAMING ROOM"
+        android:textSize="36sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:fontFamily="serif"
+            android:letterSpacing="0.1"
+            android:textAlignment="center" />
+
+    <!-- Global Gun Shooting Animation - Below top bar -->
+    <FrameLayout
+        android:id="@+id/gunAnimationContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/topBar"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp">
+
+        <com.example.zell0.GunShootingView
+            android:id="@+id/globalGunShootingView"
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+    </FrameLayout>
+
+    <!-- Audio Visualizer (now below gun animation) -->
+    <FrameLayout
+        android:id="@+id/audioVisualizerContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/gunAnimationContainer"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        android:background="@android:color/transparent"
+        android:visibility="gone">
+        
+        <!-- Custom Audio Visualizer -->
+        <com.example.zell0.AudioVisualizerView
+            android:id="@+id/audioVisualizer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+        
+    </FrameLayout>
+
+
+
+    <!-- Messages ScrollView - Maximum height from top bar -->
+    <ScrollView
+        android:id="@+id/messagesScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/audioVisualizerContainer"
+        android:layout_above="@id/inputContainer"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="90dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginBottom="16dp"
+        android:background="@android:color/transparent"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:id="@+id/messagesContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+    </ScrollView>
+
+    <!-- Input Container -->
+    <LinearLayout
+        android:id="@+id/inputContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/controlsContainer"
+        android:layout_marginBottom="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <EditText
+            android:id="@+id/messageInput"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:backgroundTint="@android:color/white"
+            android:hint="Type a message..."
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white" />
+
+        <ImageButton
+            android:id="@+id/btnSendMessage"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/circle_button_red"
+            android:contentDescription="Send Message"
+            android:src="@android:drawable/ic_menu_send" />
+
+        <ImageButton
+            android:id="@+id/btnImageUpload"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/circle_button_red"
+            android:contentDescription="Upload Image"
+            android:src="@drawable/ic_image" />
+
+    </LinearLayout>
+
+    <!-- Controls Container - Moved towards bottom -->
+    <LinearLayout
+        android:id="@+id/controlsContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="120dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <!-- Central Push-to-Talk Button -->
+        <FrameLayout
+            android:id="@+id/btnPushToTalk"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:background="@android:color/transparent"
+            android:clickable="true"
+            android:focusable="true">
+
+            <!-- Ring drawable -->
+            <ImageView
+                android:id="@+id/btnPushToTalkRing"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                android:src="@drawable/mic_button_idle"
+                android:scaleType="fitCenter"
+                android:layout_gravity="center" />
+            
+            <TextView
+                android:id="@+id/btnPushToTalkText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="PUSH TO\nTALK"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_gravity="center" />
+
+            <!-- Timer Display -->
+            <TextView
+                android:id="@+id/pushToTalkTimer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="20"
+                android:textColor="@android:color/white"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone"
+                android:background="@drawable/circle_background_red"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp"
+                android:minWidth="40dp" />
+                
+        </FrameLayout>
+
+    </LinearLayout>
+
+
+
+    <!-- Settings and Toggle Buttons - Bottom Left Corner -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:orientation="vertical"
+        android:gravity="center">
+        
+        <!-- Settings Button -->
+        <ImageButton
+            android:id="@+id/btnSettings"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/circle_button_red"
+            android:contentDescription="Settings"
+            android:elevation="4dp"
+            android:scaleType="fitCenter"
+            android:src="@android:drawable/ic_menu_manage" />
+            
+        <TextView
+            android:id="@+id/settingsText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SETTINGS"
+            android:textColor="#FFFF0000"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:layout_marginTop="4dp"
+            android:gravity="center" />
+        
+        <!-- Spacer -->
+        <View
+            android:layout_width="1dp"
+            android:layout_height="16dp"
+            android:background="@android:color/transparent" />
+        
+        <!-- Toggle Mode Button -->
+        <ImageButton
+            android:id="@+id/btnToggleMode"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/circle_button_red"
+            android:contentDescription="Toggle talk mode"
+            android:elevation="4dp"
+            android:scaleType="fitCenter" />
+            
+        <TextView
+            android:id="@+id/toggleText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TOGGLE"
+            android:textColor="#FFFF0000"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:layout_marginTop="4dp"
+            android:gravity="center" />
+            
+    </LinearLayout>
+
+</RelativeLayout>

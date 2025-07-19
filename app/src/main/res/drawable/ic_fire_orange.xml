@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <!-- Fire flame -->
+    <path
+        android:fillColor="#FF6B35"
+        android:pathData="M8,0C6,2 4,4 4,6C4,8 6,10 8,12C10,10 12,8 12,6C12,4 10,2 8,0Z"/>
+    <!-- Fire center -->
+    <path
+        android:fillColor="#FF4500"
+        android:pathData="M8,2C7,3 6,4 6,5C6,6 7,7 8,8C9,7 10,6 10,5C10,4 9,3 8,2Z"/>
+</vector> 

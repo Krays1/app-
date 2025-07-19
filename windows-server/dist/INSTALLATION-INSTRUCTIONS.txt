@@ -1,0 +1,38 @@
+﻿Zell0 Server Installation Instructions
+=====================================
+
+Generated on: 2025-07-11 17:42:27
+
+AUTOMATIC INSTALLATION (Recommended):
+1. Double-click the installer executable
+2. Follow the installation wizard
+3. The server will start automatically after installation
+
+MANUAL INSTALLATION:
+1. Extract all files to a folder (e.g., C:\Program Files\Zell0Server)
+2. Run 'install-and-setup.ps1' as Administrator
+3. The server will be configured and started automatically
+
+WHAT THE INSTALLER DOES:
+- Installs Node.js (if not already installed)
+- Installs Zell0 Server application
+- Configures Windows Firewall rules for port 3000
+- Sets up auto-start with Windows
+- Creates desktop and Start Menu shortcuts
+
+NETWORK CONFIGURATION:
+- Server IP: 172.94.3.216
+- Port: 3000
+- Protocol: TCP
+
+SYSTEM REQUIREMENTS:
+- Windows 10 or later
+- Administrator privileges (for installation)
+- Internet connection (for Node.js download)
+
+UNINSTALLING:
+- Use Windows Add/Remove Programs
+- Or run 'uninstall.ps1' from the installation directory
+
+SUPPORT:
+For issues or questions, please check the GitHub repository.

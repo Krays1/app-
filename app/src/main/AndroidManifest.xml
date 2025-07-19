@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Permissions for walkie-talkie functionality -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    
+    <!-- Permissions for profile pictures -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    
+    <!-- Permissions for video functionality -->
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@drawable/walkie_talkie_icon"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/walkie_talkie_icon"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Zell0"
+        android:networkSecurityConfig="@xml/network_security_config">
+        <!-- Login Activity - Entry Point -->
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Zell0">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        <!-- Main Walkie-Talkie Activity -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Zell0" />
+        
+        <!-- Profile Settings Activity -->
+        <activity
+            android:name=".ProfileSettingsActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Zell0" />
+        
+        <!-- Battlefield Stats Activity -->
+        <activity
+            android:name=".BattlefieldStatsActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Zell0" />
+        
+        <!-- Steam Stats Activity -->
+        <activity
+            android:name=".SteamStatsActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Zell0" />
+        
+        <!-- Videos Activity -->
+        <activity
+            android:name=".VideosActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Zell0" />
+        
+        <!-- Video Player Activity -->
+        <activity
+            android:name=".VideoPlayerActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.Zell0"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        
+        <!-- Chess Activity -->
+        <activity
+            android:name=".ChessActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Zell0" />
+        
+
+    
+    </application>
+
+</manifest>

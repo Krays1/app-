@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Background Image -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/battlefield_bg"
+        android:scaleType="centerCrop"
+        android:contentDescription="Background" />
+
+    <!-- Semi-transparent Overlay -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#88000000" />
+
+    <!-- Login Form Content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="32dp"
+            android:gravity="center">
+
+            <!-- App Logo/Title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="GAMING-ROOM"
+                android:textSize="36sp"
+                android:textColor="@color/red_accent"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"
+                android:gravity="center"
+                android:textAlignment="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gaming Room Voice Chat"
+                android:textSize="18sp"
+                android:textColor="@color/white"
+                android:alpha="0.8"
+                android:layout_marginBottom="16dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🎮 Use your Battlefield EA account name to display your gaming statistics in the app!"
+                android:textSize="14sp"
+                android:textColor="@color/red_accent"
+                android:alpha="0.9"
+                android:gravity="center"
+                android:layout_marginBottom="32dp"
+                android:padding="16dp"
+                android:background="@drawable/message_input_background" />
+
+            <!-- Profile Picture Section -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_marginBottom="32dp">
+
+                <ImageView
+                    android:id="@+id/profileImageView"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:background="@drawable/circle_background"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_person_placeholder"
+                    android:contentDescription="Profile Picture" />
+
+                <Button
+                    android:id="@+id/selectImageButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Select Profile Picture"
+                    android:textSize="12sp"
+                    android:layout_marginTop="16dp"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:textColor="@color/red_accent" />
+
+            </LinearLayout>
+
+            <!-- Username Input -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/usernameLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:hint="Username"
+                app:boxBackgroundColor="@color/input_background"
+                app:boxStrokeColor="@color/red_accent"
+                app:hintTextColor="@color/red_accent"
+                style="@style/Widget.Material3.TextInputLayout.FilledBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/usernameInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/hint_color"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:imeOptions="actionDone" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Remember Login Checkbox (Phone Only) -->
+            <CheckBox
+                android:id="@+id/rememberLoginCheckbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Remember Login (Phone Only)"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:checked="false"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone" />
+
+            <!-- Login Button -->
+            <Button
+                android:id="@+id/loginButton"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="ENTER ROOM"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:backgroundTint="@color/red_accent"
+                android:textColor="@color/dark_background"
+                style="@style/Widget.Material3.Button" />
+
+            <!-- Clear Data Button -->
+            <Button
+                android:id="@+id/clearDataButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🗑️ Clear All Data"
+                android:textSize="12sp"
+                android:layout_marginTop="16dp"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:textColor="@color/white"
+                android:alpha="0.7" />
+
+            <!-- Fresh Start Button -->
+            <Button
+                android:id="@+id/freshStartButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🆕 FRESH START"
+                android:textSize="14sp"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="@color/red_accent"
+                android:textColor="@color/dark_background"
+                style="@style/Widget.Material3.Button" />
+
+            <!-- Info Text -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Your username is stored locally on your device"
+                android:textSize="12sp"
+                android:textColor="@color/white"
+                android:alpha="0.6"
+                android:gravity="center"
+                android:layout_marginTop="24dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</FrameLayout> 

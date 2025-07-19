@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">GAMING-ROOM</string>
+    <string name="video_thumbnail">Video thumbnail</string>
+    <string name="videos">Videos</string>
+    <string name="chess">Chess</string>
+    <string name="join_game">Join Game</string>
+    <string name="leave_game">Leave Game</string>
+    <string name="resign">Resign</string>
+    <string name="offer_draw">Offer Draw</string>
+    <string name="move_history">Move History</string>
+    <string name="game_over">Game Over</string>
+    <string name="new_game">New Game</string>
+    <string name="back_to_menu">Back to Menu</string>
+    <string name="draw_offer">Draw Offer</string>
+    <string name="accept">Accept</string>
+    <string name="decline">Decline</string>
+    <string name="your_turn">Your turn</string>
+    <string name="opponent_turn">Opponent\'s turn</string>
+    <string name="waiting_for_opponent">Waiting for opponent...</string>
+    <string name="no_active_game">No active game</string>
+    <string name="join_or_create_game">Join or create a game to start playing</string>
+</resources>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="dark_gray">#FF2D2D2D</color>
+    <color name="light_gray">#FF888888</color>
+    <color name="green">#FF00E676</color>
+    <color name="red">#FFFF3333</color>
+    
+    <!-- App Theme Colors -->
+    <color name="dark_background">#FF1A1A1A</color>
+    <color name="accent_color">#FF00E676</color>
+    <color name="red_accent">#FFFF3333</color>
+    <color name="dark_red">#FFCC0000</color>
+    <color name="input_background">#FF2D2D2D</color>
+    <color name="hint_color">#FF888888</color>
+    <color name="message_background">#AA2E2E2E</color>
+    <color name="my_message_background">#AA00C853</color>
+    <color name="error_color">#FFFF5722</color>
+    <color name="success_color">#FF4CAF50</color>
+    <color name="warning_color">#FFFF9800</color>
+    <color name="orange">#FFFF9800</color>
+    <color name="blue">#FF006FCD</color>
+</resources>

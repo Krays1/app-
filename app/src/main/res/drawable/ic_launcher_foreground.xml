@@ -1,0 +1,45 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+  <group android:scaleX="0.6"
+      android:scaleY="0.6"
+      android:translateX="21.6"
+      android:translateY="21.6">
+    <!-- Gaming Controller Icon -->
+    <path
+        android:fillColor="#FF6600"
+        android:pathData="M80,40C80,35.6,76.4,32,72,32H36C31.6,32,28,35.6,28,40V68C28,72.4,31.6,76,36,76H72C76.4,76,80,72.4,80,68V40Z"/>
+    
+    <!-- Controller buttons -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M44,48C44,45.8,45.8,44,48,44C50.2,44,52,45.8,52,48C52,50.2,50.2,52,48,52C45.8,52,44,50.2,44,48Z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M56,48C56,45.8,57.8,44,60,44C62.2,44,64,45.8,64,48C64,50.2,62.2,52,60,52C57.8,52,56,50.2,56,48Z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M48,56C48,53.8,49.8,52,52,52C54.2,52,56,53.8,56,56C56,58.2,54.2,60,52,60C49.8,60,48,58.2,48,56Z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M60,56C60,53.8,61.8,52,64,52C66.2,52,68,53.8,68,56C68,58.2,66.2,60,64,60C61.8,60,60,58.2,60,56Z"/>
+    
+    <!-- D-pad -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M32,48C32,45.8,33.8,44,36,44C38.2,44,40,45.8,40,48C40,50.2,38.2,52,36,52C33.8,52,32,50.2,32,48Z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M36,44C38.2,44,40,45.8,40,48C40,50.2,38.2,52,36,52C33.8,52,32,50.2,32,48C32,45.8,33.8,44,36,44Z"/>
+    
+    <!-- Controller grips -->
+    <path
+        android:fillColor="#FF6600"
+        android:pathData="M28,52C28,49.8,29.8,48,32,48H36C38.2,48,40,49.8,40,52C40,54.2,38.2,56,36,56H32C29.8,56,28,54.2,28,52Z"/>
+    <path
+        android:fillColor="#FF6600"
+        android:pathData="M68,52C68,49.8,69.8,48,72,48H76C78.2,48,80,49.8,80,52C80,54.2,78.2,56,76,56H72C69.8,56,68,54.2,68,52Z"/>
+  </group>
+</vector>
