@@ -93,7 +93,26 @@ app.get('/health', (req, res) => {
         status: 'ok',
         timestamp: new Date().toISOString(),
         connectedUsers: connectedUsers.size,
+        onlineUsers: connectedUsers.size,
+        totalConnections: connectedUsers.size,
         uptime: process.uptime()
+    });
+});
+
+// Get online users endpoint
+app.get('/api/online-users', (req, res) => {
+    const users = Array.from(connectedUsers.values()).map(user => ({
+        username: user.username || user.deviceId,
+        deviceId: user.deviceId,
+        connectedAt: user.connectedAt,
+        lastSeen: user.lastSeen,
+        clientIP: user.clientIP
+    }));
+    
+    res.json({
+        users: users,
+        count: users.length,
+        timestamp: new Date().toISOString()
     });
 });
 
@@ -105,32 +124,35 @@ io.on('connection', (socket) => {
     // Handle user registration
     socket.on('register', (data) => {
         try {
-            const { deviceId, timestamp } = data;
+            const { username, deviceId, timestamp } = data;
+            const userId = username || deviceId; // Use username if available, fallback to deviceId
             
             // Store user information
             connectedUsers.set(socket.id, {
-                deviceId,
+                deviceId: userId,
+                username: userId,
                 socketId: socket.id,
                 connectedAt: new Date().toISOString(),
                 lastSeen: new Date().toISOString(),
                 clientIP
             });
             
-            userSockets.set(deviceId, socket.id);
+            userSockets.set(userId, socket.id);
             
             // Notify other users
             socket.broadcast.emit('user_joined', { 
-                userId: deviceId,
+                userId: userId,
                 timestamp: new Date().toISOString()
             });
             
-            console.log(`${new Date().toISOString()} - User registered: ${deviceId} (${socket.id})`);
+            console.log(`${new Date().toISOString()} - User registered: ${userId} (${socket.id})`);
             
             // Send registration confirmation
             socket.emit('registration_confirmed', {
-                deviceId,
+                deviceId: userId,
+                username: userId,
                 serverTime: new Date().toISOString(),
-                connectedUsers: Array.from(connectedUsers.values()).map(u => u.deviceId)
+                connectedUsers: Array.from(connectedUsers.values()).map(u => u.username || u.deviceId)
             });
             
         } catch (error) {
@@ -140,9 +162,9 @@ io.on('connection', (socket) => {
     });
     
     // Handle text messages
-    socket.on('text_message', (data) => {
+    socket.on('text-message', (data) => {
         try {
-            const { message, senderId, timestamp, type } = data;
+            const { message, username, timestamp, type } = data;
             
             // Update last seen
             const userInfo = connectedUsers.get(socket.id);
@@ -151,26 +173,26 @@ io.on('connection', (socket) => {
             }
             
             // Broadcast to all other users
-            socket.broadcast.emit('text_message', {
-                message,
-                senderId,
-                timestamp,
-                type,
+            socket.broadcast.emit('text_message_received', {
+                text: message,
+                senderId: username,
+                senderName: username,
+                timestamp: timestamp,
                 serverTimestamp: new Date().toISOString()
             });
             
-            console.log(`${new Date().toISOString()} - Text message from ${senderId}: ${message.substring(0, 50)}...`);
+            console.log(`${new Date().toISOString()} - Text message from ${username}: ${message.substring(0, 50)}...`);
             
         } catch (error) {
-            console.error('Error in text_message:', error);
+            console.error('Error in text-message:', error);
             socket.emit('error', { message: 'Failed to send text message' });
         }
     });
     
     // Handle audio messages
-    socket.on('audio_message', (data) => {
+    socket.on('voice-message', (data) => {
         try {
-            const { audioData, senderId, timestamp, type, duration } = data;
+            const { audioData, username, timestamp, type, duration } = data;
             
             // Update last seen
             const userInfo = connectedUsers.get(socket.id);
@@ -179,20 +201,20 @@ io.on('connection', (socket) => {
             }
             
             // Broadcast to all other users
-            socket.broadcast.emit('audio_message', {
-                audioData,
-                senderId,
-                timestamp,
-                type,
-                duration,
+            socket.broadcast.emit('voice_message_received', {
+                audioData: audioData,
+                senderId: username,
+                senderName: username,
+                duration: duration,
+                timestamp: timestamp,
                 serverTimestamp: new Date().toISOString()
             });
             
-            console.log(`${new Date().toISOString()} - Audio message from ${senderId}: ${audioData.length} bytes, ${duration}ms`);
+            console.log(`${new Date().toISOString()} - Voice message from ${username}: ${duration}ms`);
             
         } catch (error) {
-            console.error('Error in audio_message:', error);
-            socket.emit('error', { message: 'Failed to send audio message' });
+            console.error('Error in voice-message:', error);
+            socket.emit('error', { message: 'Failed to send voice message' });
         }
     });
     
@@ -223,19 +245,20 @@ io.on('connection', (socket) => {
         try {
             const userInfo = connectedUsers.get(socket.id);
             if (userInfo) {
-                const { deviceId } = userInfo;
+                const { deviceId, username } = userInfo;
+                const userId = username || deviceId;
                 
                 // Remove user from maps
                 connectedUsers.delete(socket.id);
-                userSockets.delete(deviceId);
+                userSockets.delete(userId);
                 
                 // Notify other users
                 socket.broadcast.emit('user_left', { 
-                    userId: deviceId,
+                    userId: userId,
                     timestamp: new Date().toISOString()
                 });
                 
-                console.log(`${new Date().toISOString()} - User disconnected: ${deviceId} (${socket.id}) - Reason: ${reason}`);
+                console.log(`${new Date().toISOString()} - User disconnected: ${userId} (${socket.id}) - Reason: ${reason}`);
             } else {
                 console.log(`${new Date().toISOString()} - Unknown user disconnected: ${socket.id} - Reason: ${reason}`);
             }
