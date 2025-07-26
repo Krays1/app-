@@ -10,7 +10,7 @@ const path = require('path');
 const multer = require('multer');
 
 // Cloud configuration - will use environment variables
-const SERVER_PORT = process.env.PORT || 3001;
+const SERVER_PORT = process.env.PORT || 8080;
 const SERVER_IP = process.env.IP || '0.0.0.0';
 
 console.log('🚀 Zell0 Server - Cloud Configuration');
@@ -44,6 +44,21 @@ let userSockets = new Map();
 // ========================================
 // API ENDPOINTS FOR WEBSITE & APP
 // ========================================
+
+// Root endpoint for testing
+app.get('/', (req, res) => {
+    res.json({
+        message: 'Zell0 Server is running!',
+        timestamp: new Date().toISOString(),
+        endpoints: {
+            health: '/health',
+            api: '/api',
+            onlineUsers: '/api/online-users',
+            battlefieldStats: '/api/battlefield-stats/:username',
+            steamStats: '/api/steam-stats/:username'
+        }
+    });
+});
 
 // Health check endpoint
 app.get('/health', (req, res) => {
