@@ -30,6 +30,8 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+// Socket.IO server will be created later with proper CORS configuration
+
 // Parse JSON bodies
 app.use(express.json());
 
@@ -202,8 +204,10 @@ app.post('/api/test/add-user', (req, res) => {
 const io = socketIo(server, {
     cors: {
         origin: "*",
-        methods: ["GET", "POST"]
-    }
+        methods: ["GET", "POST"],
+        allowedHeaders: ["Content-Type", "Authorization"]
+    },
+    transports: ['websocket', 'polling']
 });
 
 io.on('connection', (socket) => {
