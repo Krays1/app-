@@ -133,7 +133,7 @@ io.on('connection', (socket) => {
                 username: userId,
                 socketId: socket.id,
                 connectedAt: new Date().toISOString(),
-                lastSeen: new Date().toISOString(),
+                lastSeen: Date.now(), // Store as timestamp
                 clientIP
             });
             
@@ -155,6 +155,18 @@ io.on('connection', (socket) => {
                 connectedUsers: Array.from(connectedUsers.values()).map(u => u.username || u.deviceId)
             });
             
+            // Send updated user list to all clients
+            const userList = Array.from(connectedUsers.values()).map(user => ({
+                username: user.username || user.deviceId,
+                profilePic: null,
+                isOnline: true,
+                lastSeen: user.lastSeen
+            }));
+            
+            io.emit('user_list_updated', {
+                users: userList
+            });
+            
         } catch (error) {
             console.error('Error in register:', error);
             socket.emit('error', { message: 'Registration failed' });
@@ -169,7 +181,7 @@ io.on('connection', (socket) => {
             // Update last seen
             const userInfo = connectedUsers.get(socket.id);
             if (userInfo) {
-                userInfo.lastSeen = new Date().toISOString();
+                userInfo.lastSeen = Date.now(); // Update as timestamp
             }
             
             // Broadcast to all other users
@@ -197,7 +209,7 @@ io.on('connection', (socket) => {
             // Update last seen
             const userInfo = connectedUsers.get(socket.id);
             if (userInfo) {
-                userInfo.lastSeen = new Date().toISOString();
+                userInfo.lastSeen = Date.now(); // Update as timestamp
             }
             
             // Broadcast to all other users
@@ -226,7 +238,7 @@ io.on('connection', (socket) => {
             // Update last seen
             const userInfo = connectedUsers.get(socket.id);
             if (userInfo) {
-                userInfo.lastSeen = new Date().toISOString();
+                userInfo.lastSeen = Date.now(); // Update as timestamp
             }
             
             // Send keep alive response
@@ -256,6 +268,18 @@ io.on('connection', (socket) => {
                 socket.broadcast.emit('user_left', { 
                     userId: userId,
                     timestamp: new Date().toISOString()
+                });
+                
+                // Send updated user list to remaining clients
+                const userList = Array.from(connectedUsers.values()).map(user => ({
+                    username: user.username || user.deviceId,
+                    profilePic: null,
+                    isOnline: true,
+                    lastSeen: user.lastSeen
+                }));
+                
+                io.emit('user_list_updated', {
+                    users: userList
                 });
                 
                 console.log(`${new Date().toISOString()} - User disconnected: ${userId} (${socket.id}) - Reason: ${reason}`);
