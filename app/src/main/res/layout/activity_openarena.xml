@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/krays_background"
+    android:padding="16dp">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="24dp">
+
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_openarena"
+            android:scaleType="fitCenter" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="16dp"
+            android:text="OPENARENA"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:fontFamily="serif" />
+
+    </LinearLayout>
+
+    <!-- Game Description -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="🎮 Free and Open-Source First-Person Shooter\n\nOpenArena is a classic arena shooter based on Quake III Arena. Experience fast-paced action with multiple game modes, custom maps, and multiplayer support."
+        android:textSize="16sp"
+        android:textColor="@android:color/white"
+        android:layout_marginBottom="24dp"
+        android:lineSpacingExtra="4dp" />
+
+    <!-- Server Status Card -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/button_background"
+        android:padding="16dp"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="SERVER STATUS"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/serverStatusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Server Status: Checking..."
+            android:textSize="14sp"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/playerCountText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Players Online: 0"
+            android:textSize="14sp"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="16dp">
+
+        <!-- Launch Button -->
+        <Button
+            android:id="@+id/launchButton"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="LAUNCH OPENARENA"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:background="@drawable/button_background"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Native Game Button -->
+        <Button
+            android:id="@+id/webButton"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="PLAY NATIVE GAME"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:background="@drawable/button_background"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Server Button -->
+        <Button
+            android:id="@+id/serverButton"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="CONNECT TO SERVER"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:background="@drawable/button_background"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
+
+    <!-- Game Features -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/button_background"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="GAME FEATURES"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="12dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🎯 Multiple Game Modes:\n• Free For All Deathmatch\n• Team Deathmatch\n• Capture The Flag\n• Tournament Mode\n• Last Man Standing\n\n🗺️ Custom Maps and Mods\n🏆 Tournament Support\n🌐 Multiplayer Servers\n🎮 Cross-Platform Play"
+            android:textSize="14sp"
+            android:textColor="@android:color/white"
+            android:lineSpacingExtra="2dp" />
+
+    </LinearLayout>
+
+</LinearLayout> 

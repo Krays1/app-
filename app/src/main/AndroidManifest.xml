@@ -12,10 +12,10 @@
     
     <!-- Permissions for profile pictures -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" android:maxSdkVersion="32" />
     
     <!-- Permissions for video functionality -->
-    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" android:maxSdkVersion="32" />
 
     <application
         android:allowBackup="true"
@@ -90,8 +90,90 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Zell0" />
         
+                <!-- Chess Stats Activity -->
+        <activity
+            android:name=".ChessStatsActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Zell0" />
+        
+        <!-- Doom Game Activity -->
+        <activity
+            android:name=".DoomGameActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.Zell0"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        
+        <!-- Web Shooter Activity -->
+        <activity
+            android:name=".WebShooterActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.Zell0"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        
+        <!-- OpenArena Activity -->
+        <activity
+            android:name=".OpenArenaActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.Zell0"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        
+        <!-- OpenArena Web Activity -->
+        <activity
+            android:name=".OpenArenaWebActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.Zell0"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        
+        <!-- OpenArena Game Activity -->
+        <activity
+            android:name=".OpenArenaGameActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.Zell0"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        
+        <!-- Snake Activity -->
+        <activity
+            android:name=".SnakeActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Zell0" />
+        
+        <!-- Snake Scoreboard Activity -->
+        <activity
+            android:name=".SnakeScoreboardActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Zell0" />
+        
+        <!-- Pac-Man Activity -->
+        <activity
+            android:name=".PacmanActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Zell0" />
+        
+        <!-- Pac-Man Scoreboard Activity -->
+        <activity
+            android:name=".PacmanScoreboardActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Zell0" />
+        
+        <!-- Pac-Man Leaderboard Activity -->
+        <activity
+            android:name=".PacmanLeaderboardActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Zell0" />
 
     
+
     </application>
 
 </manifest>

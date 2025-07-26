@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/black">
+
+    <!-- Game Area - Full Width, Half Screen Height -->
+    <FrameLayout
+        android:id="@+id/gameContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/black">
+
+        <com.example.zell0.PacmanGameView
+            android:id="@+id/pacmanGameView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </FrameLayout>
+
+    <!-- Game Info Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/black"
+        android:padding="8dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/scoreText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="SCORE: 0"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:gravity="start" />
+
+        <TextView
+            android:id="@+id/levelText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="LEVEL: 1"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginStart="16dp" />
+
+        <TextView
+            android:id="@+id/livesText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="LIVES: 3"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginStart="16dp" />
+
+    </LinearLayout>
+
+    <!-- Control Buttons Row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/black"
+        android:padding="12dp"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/newGameButton"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="NEW GAME"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:background="@drawable/button_background"
+            android:layout_marginEnd="6dp" />
+
+        <Button
+            android:id="@+id/scoreboardButton"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="SCOREBOARD"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:background="@drawable/button_background"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp" />
+
+        <Button
+            android:id="@+id/pauseButton"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="PAUSE"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:background="@drawable/button_background"
+            android:layout_marginStart="6dp" />
+
+    </LinearLayout>
+
+    <!-- Volume Control -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/black"
+        android:padding="8dp"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_lock_silent_mode_off"
+            android:tint="@color/white"
+            android:layout_marginEnd="8dp" />
+
+        <SeekBar
+            android:id="@+id/volumeSeekBar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:max="100"
+            android:progress="50"
+            android:progressTint="@color/white"
+            android:thumbTint="@color/white" />
+
+        <Button
+            android:id="@+id/muteButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:text="MUTE"
+            android:textColor="@color/white"
+            android:textSize="10sp"
+            android:background="@drawable/button_background"
+            android:layout_marginStart="8dp" />
+
+    </LinearLayout>
+
+    <!-- Directional Controls -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/black"
+        android:padding="16dp"
+        android:gravity="center">
+
+        <!-- Up Button -->
+        <ImageButton
+            android:id="@+id/upButton"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@android:drawable/ic_media_previous"
+            android:background="@drawable/dpad_button_background"
+            android:rotation="90"
+            android:scaleType="centerInside"
+            android:contentDescription="Up" />
+
+        <!-- Middle Row: Left, Center, Right -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
+
+            <ImageButton
+                android:id="@+id/leftButton"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@android:drawable/ic_media_previous"
+                android:background="@drawable/dpad_button_background"
+                android:scaleType="centerInside"
+                android:contentDescription="Left" />
+
+            <View
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="@drawable/dpad_center_background"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp" />
+
+            <ImageButton
+                android:id="@+id/rightButton"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@android:drawable/ic_media_next"
+                android:background="@drawable/dpad_button_background"
+                android:scaleType="centerInside"
+                android:contentDescription="Right" />
+
+        </LinearLayout>
+
+        <!-- Down Button -->
+        <ImageButton
+            android:id="@+id/downButton"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@android:drawable/ic_media_next"
+            android:background="@drawable/dpad_button_background"
+            android:rotation="90"
+            android:scaleType="centerInside"
+            android:contentDescription="Down" />
+
+    </LinearLayout>
+
+</LinearLayout> 

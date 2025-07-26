@@ -433,6 +433,53 @@ class ChessBoardView @JvmOverloads constructor(
             invalidate()
         }
     }
+
+    // 🔧 RESUME GAME FEATURE - LOAD BOARD STATE
+    fun loadBoardState(boardState: org.json.JSONObject) {
+        Log.d("ChessBoardView", "Loading board state from JSON")
+        
+        // Clear the board first
+        for (row in 0..7) {
+            for (col in 0..7) {
+                board[row][col] = ChessPiece.EMPTY
+            }
+        }
+        
+        // Load pieces from JSON
+        for (row in 0..7) {
+            for (col in 0..7) {
+                val square = "${('a' + col)}${8 - row}"
+                val pieceSymbol = boardState.optString(square, "")
+                
+                if (pieceSymbol.isNotEmpty()) {
+                    val piece = when (pieceSymbol) {
+                        "P" -> ChessPiece.WHITE_PAWN
+                        "R" -> ChessPiece.WHITE_ROOK
+                        "N" -> ChessPiece.WHITE_KNIGHT
+                        "B" -> ChessPiece.WHITE_BISHOP
+                        "Q" -> ChessPiece.WHITE_QUEEN
+                        "K" -> ChessPiece.WHITE_KING
+                        "p" -> ChessPiece.BLACK_PAWN
+                        "r" -> ChessPiece.BLACK_ROOK
+                        "n" -> ChessPiece.BLACK_KNIGHT
+                        "b" -> ChessPiece.BLACK_BISHOP
+                        "q" -> ChessPiece.BLACK_QUEEN
+                        "k" -> ChessPiece.BLACK_KING
+                        else -> ChessPiece.EMPTY
+                    }
+                    board[row][col] = piece
+                }
+            }
+        }
+        
+        // Clear selection and valid moves
+        selectedSquare = null
+        validMoves.clear()
+        
+        Log.d("ChessBoardView", "Board state loaded successfully")
+        debugBoardState()
+        invalidate()
+    }
     
     fun debugBoardState() {
         Log.d("ChessBoardView", "=== BOARD STATE DEBUG ===")

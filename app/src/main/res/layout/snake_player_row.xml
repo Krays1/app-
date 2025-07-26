@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    android:background="@drawable/message_received_background"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:gravity="center_vertical">
+
+    <!-- Rank -->
+    <TextView
+        android:id="@+id/rankText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="1"
+        android:textColor="@color/red"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginEnd="12dp"
+        android:minWidth="24dp"
+        android:gravity="center" />
+
+    <!-- Player Info -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/playerNameText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Player Name"
+            android:textColor="@color/text_white"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/playerStatsText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Games: 0"
+            android:textColor="@color/text_gray"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+    <!-- Highest Score -->
+    <TextView
+        android:id="@+id/highestScoreText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Score: 0"
+        android:textColor="@color/green"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginStart="8dp" />
+
+</LinearLayout> 

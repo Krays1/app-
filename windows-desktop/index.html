@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zell0 Desktop</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <h1 class="app-title">
+                    <i class="fas fa-walkie-talkie"></i>
+                    Zell0 Desktop
+                </h1>
+            </div>
+            <div class="header-center">
+                <div class="connection-status" id="connectionStatus">
+                    <i class="fas fa-circle status-icon" id="statusIcon"></i>
+                    <span id="statusText">Disconnected</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="header-btn" id="testUIBtn" title="Test UI">
+                    <i class="fas fa-bug"></i>
+                </button>
+                <button class="header-btn" id="refreshBtn" title="Refresh">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <button class="header-btn" id="testConnectionBtn" title="Test Connection">
+                    <i class="fas fa-wifi"></i>
+                </button>
+                <button class="header-btn" id="settingsBtn" title="Settings">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button class="header-btn" id="minimizeBtn" title="Minimize">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">
+                        <i class="fas fa-users"></i>
+                        Connected Users
+                    </h3>
+                    <div class="user-count" id="userCount">0 users</div>
+                    <div class="user-list" id="userList">
+                        <!-- Users will be populated here -->
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">
+                        <i class="fas fa-chess"></i>
+                        Chess Games
+                    </h3>
+                    <div class="chess-controls">
+                        <button class="btn btn-primary" id="findGameBtn">
+                            <i class="fas fa-search"></i>
+                            Find Game
+                        </button>
+                        <button class="btn btn-secondary" id="leaveGameBtn" style="display: none;">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Leave Game
+                        </button>
+                    </div>
+                    <div class="chess-status" id="chessStatus">
+                        <!-- Chess game status will be shown here -->
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Chat Area -->
+            <main class="chat-area">
+                <div class="chat-header">
+                    <h2 class="chat-title">
+                        <i class="fas fa-comments"></i>
+                        Chat Room
+                    </h2>
+                    <div class="chat-controls">
+                        <button class="btn btn-sm" id="clearChatBtn" title="Clear Chat">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="messages-container" id="messagesContainer">
+                    <!-- Messages will be populated here -->
+                </div>
+
+                <div class="input-area">
+                    <div class="input-group">
+                        <input type="text" id="messageInput" placeholder="Type your message..." class="message-input">
+                        <button class="btn btn-primary" id="sendBtn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="voice-controls">
+                        <button class="btn btn-voice" id="voiceBtn" title="Hold to talk">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <span class="voice-status" id="voiceStatus">Click to record voice message</span>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Settings</h3>
+                <button class="modal-close" id="closeSettingsBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label for="usernameInput">Username:</label>
+                    <input type="text" id="usernameInput" class="setting-input">
+                </div>
+                <div class="setting-group">
+                    <label>
+                        <input type="checkbox" id="autoConnectCheck">
+                        Auto-connect on startup
+                    </label>
+                </div>
+                <div class="setting-group">
+                    <label>
+                        <input type="checkbox" id="voiceEnabledCheck" checked>
+                        Enable voice messages
+                    </label>
+                </div>
+                <div class="setting-group">
+                    <label>
+                        <input type="checkbox" id="notificationsCheck" checked>
+                        Enable notifications
+                    </label>
+                </div>
+                <div class="setting-group">
+                    <label>
+                        <input type="checkbox" id="darkThemeCheck">
+                        Dark theme
+                    </label>
+                </div>
+                <div class="setting-group">
+                    <label for="microphoneInput">Microphone Device:</label>
+                    <select id="microphoneInput" class="setting-input">
+                        <option value="">Default microphone</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label for="speakerInput">Speaker Device:</label>
+                    <select id="speakerInput" class="setting-input">
+                        <option value="">Default speakers</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label for="voiceVolume">Voice Volume:</label>
+                    <input type="range" id="voiceVolume" class="setting-input" min="0" max="100" value="80">
+                    <span id="volumeDisplay">80%</span>
+                </div>
+                <div class="setting-group">
+                    <button class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
+                    <button class="btn btn-secondary" id="testAudioBtn">Test Audio</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Connection Modal -->
+    <div class="modal" id="connectionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Connect to Server</h3>
+            </div>
+            <div class="modal-body">
+                <div class="connection-info">
+                    <p><strong>Server:</strong> 172.94.3.216:3001</p>
+                    <p><strong>Status:</strong> <span id="connectionModalStatus">Connecting...</span></p>
+                </div>
+                <div class="connection-form">
+                    <div class="form-group">
+                        <label for="connectUsernameInput">Username:</label>
+                        <input type="text" id="connectUsernameInput" class="form-input" placeholder="Enter your username">
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-primary" id="connectBtn">Connect</button>
+                        <button class="btn btn-secondary" id="cancelConnectBtn">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chess Board Modal -->
+    <div class="modal" id="chessModal">
+        <div class="modal-content chess-modal">
+            <div class="modal-header">
+                <h3>Chess Game</h3>
+                <button class="modal-close" id="closeChessBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="chess-board" id="chessBoard">
+                    <!-- Chess board will be rendered here -->
+                </div>
+                <div class="chess-info">
+                    <div class="chess-status-info" id="chessStatusInfo">
+                        <!-- Game status info -->
+                    </div>
+                    <div class="chess-controls">
+                        <button class="btn btn-secondary" id="resignBtn">Resign</button>
+                        <button class="btn btn-primary" id="saveGameBtn">Save Game</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <script src="renderer.js"></script>
+</body>
+</html> 

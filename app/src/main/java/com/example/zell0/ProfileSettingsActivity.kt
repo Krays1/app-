@@ -19,6 +19,9 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import java.io.ByteArrayOutputStream
 import java.io.FileNotFoundException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class ProfileSettingsActivity : AppCompatActivity() {
     
@@ -115,21 +118,31 @@ class ProfileSettingsActivity : AppCompatActivity() {
     }
     
     private fun setupNetworkManager() {
-        networkManager = NetworkManager()
+        // 🔧 USE EXISTING NETWORK MANAGER FROM MAIN ACTIVITY
+        // Instead of creating a new NetworkManager, use the existing one
+        // This prevents creating a new socket connection that would register as a new user
+        networkManager = MainActivity.getNetworkManager() ?: NetworkManager()
+        
+        // Set up network listener
         networkManager?.setNetworkListener(object : NetworkManager.NetworkListener {
             override fun onConnected() {
-                Log.d(TAG, "Connected to server for profile updates")
+                runOnUiThread {
+                    Log.d(TAG, "Connected to server")
+                }
             }
             
             override fun onDisconnected() {
-                Log.d(TAG, "Disconnected from server")
+                runOnUiThread {
+                    Log.d(TAG, "Disconnected from server")
+                }
             }
             
             override fun onConnectionError(error: String) {
-                Log.e(TAG, "Connection error: $error")
+                runOnUiThread {
+                    Log.e(TAG, "Connection error: $error")
+                    Toast.makeText(this@ProfileSettingsActivity, "Connection error: $error", Toast.LENGTH_LONG).show()
+                }
             }
-            
-            // Profile update events could be handled here
             
             // Empty implementations for required methods
             override fun onTextMessageReceived(message: String, senderId: String, senderName: String, senderProfilePic: String?, timestamp: Long) {}
@@ -137,14 +150,29 @@ class ProfileSettingsActivity : AppCompatActivity() {
             override fun onImageMessageReceived(imageData: ByteArray, senderId: String, senderName: String, senderProfilePic: String?, caption: String, timestamp: Long) {}
             override fun onLiveAudioChunkReceived(audioData: ByteArray, senderId: String, senderName: String, senderProfilePic: String?) {}
             override fun onUserJoined(userId: String) {}
-            override fun onUserListUpdated(users: List<ConnectedUser>) {}
             override fun onUserLeft(userId: String) {}
+            override fun onUserListUpdated(users: List<ConnectedUser>) {}
             override fun onFileShared(fileId: String, fileName: String, fileType: String, fileSize: Long, uploadedBy: String) {}
             override fun onFileListUpdated(files: List<SharedFile>) {}
             override fun onFileUploadSuccess(fileId: String, fileName: String) {}
             override fun onFileDownloadResponse(fileId: String, fileName: String, fileType: String, fileData: ByteArray) {}
             override fun onFileMessageReceived(fileData: ByteArray, fileName: String, fileSize: Long, mimeType: String, senderId: String, senderName: String, senderProfilePic: String?, timestamp: Long) {}
         })
+        
+        // Connect to server
+        val currentUser = LoginActivity.getCurrentUser(this)
+        val username = currentUser?.username ?: "anonymous"
+        
+        // 🔧 CHECK IF ALREADY CONNECTED
+        val existingSocket = MainActivity.getNetworkManager()?.getSocket()
+        if (existingSocket != null && existingSocket.connected()) {
+            Log.d(TAG, "✅ Using existing socket connection from MainActivity")
+        } else {
+            Log.d(TAG, "⚠️ No existing socket connection, creating new one")
+            CoroutineScope(Dispatchers.IO).launch {
+                networkManager?.connect(username, currentUser)
+            }
+        }
     }
     
     private fun openImagePicker() {

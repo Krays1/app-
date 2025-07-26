@@ -9,7 +9,10 @@ android {
 
     defaultConfig {
         applicationId = "com.example.zell0"
-        minSdk = 24
+        minSdk = 21  // Android 5.0 (Lollipop) - covers ~95% of devices
+        // Alternative options:
+        // minSdk = 23  // Android 6.0 (Marshmallow) - covers ~90% of devices
+        // minSdk = 24  // Android 7.0 (Nougat) - covers ~85% of devices
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -62,6 +65,10 @@ dependencies {
     
     // RecyclerView for message list
     implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    
+    // Volley for HTTP requests
+    implementation("com.android.volley:volley:1.2.1")
     
     // Glide for image loading and video thumbnails
     implementation("com.github.bumptech.glide:glide:4.13.2")

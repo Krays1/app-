@@ -76,6 +76,11 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         fun forceRefreshAllSteamStats() {
             instance?.forceRefreshAllSteamStats()
         }
+        
+        // 🔧 EXPOSE NETWORK MANAGER FOR OTHER ACTIVITIES
+        fun getNetworkManager(): NetworkManager? {
+            return instance?.networkManager
+        }
     }
     
     // Button states for different mic conditions
@@ -199,7 +204,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             return
         }
         
-        enableEdgeToEdge()
+        // Enable edge-to-edge only on supported Android versions (API 30+)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            enableEdgeToEdge()
+        }
         setContentView(R.layout.activity_main)
         
         // ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -232,6 +240,32 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         
         // REMOVED: Automatic server user clearing - this was causing users to disappear
         // The server should maintain the user list properly without manual clearing
+        
+        val chessButton = findViewById<ImageButton>(R.id.chessButton)
+        chessButton.setOnClickListener {
+            val intent = Intent(this, ChessActivity::class.java)
+            startActivity(intent)
+        }
+        // Add Snake button logic
+        val snakeButton = findViewById<ImageButton>(R.id.snakeButton)
+        snakeButton.setOnClickListener {
+            val intent = Intent(this, SnakeActivity::class.java)
+            startActivity(intent)
+        }
+        
+        // Add Pac-Man button logic
+        val pacmanButton = findViewById<ImageButton>(R.id.pacmanButton)
+        pacmanButton.setOnClickListener {
+            val intent = Intent(this, PacmanActivity::class.java)
+            startActivity(intent)
+        }
+        
+        // Add OpenArena button logic
+        val openarenaButton = findViewById<ImageButton>(R.id.openarenaButton)
+        openarenaButton.setOnClickListener {
+            val intent = Intent(this, OpenArenaActivity::class.java)
+            startActivity(intent)
+        }
     }
     
     // Update toggle button appearance based mode
@@ -906,6 +940,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 Toast.makeText(this, "Error opening Chess: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
+        
+
         
 
         
@@ -1941,6 +1977,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             "\ud83c\udfa4 Microphone Settings",
             "\ud83c\udfae Battlefield Stats Settings",
             "\ud83c\udfae Steam Stats Settings",
+            "\ud83c\udfae Chess Game",
             "\ud83d\uddd1\ufe0f Clear All Data & Logout"
         )
         
@@ -1952,7 +1989,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     1 -> showMicSettingsDialog()
                     2 -> showBattlefieldStatsSettings()
                     3 -> showSteamStatsSettings()
-                    4 -> showClearDataDialog()
+                    4 -> openChessGame()
+                    5 -> showClearDataDialog()
                 }
             }
             .setNegativeButton("Cancel", null)
@@ -1961,6 +1999,11 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     
     private fun openProfileSettings() {
         val intent = Intent(this, ProfileSettingsActivity::class.java)
+        startActivity(intent)
+    }
+    
+    private fun openChessGame() {
+        val intent = Intent(this, ChessActivity::class.java)
         startActivity(intent)
     }
     

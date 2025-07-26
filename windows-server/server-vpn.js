@@ -87,6 +87,250 @@ app.post('/api/upload', upload.single('video'), (req, res) => {
     res.json({ filename: req.file.filename, url: `/videos/${req.file.filename}` });
 });
 
+// ========================================
+// 🎮 DOOM GAME SYSTEM
+// ========================================
+
+// Doom game state
+const doomGameState = {
+    players: new Map(),
+    bullets: new Map(),
+    gameState: 'LOBBY', // LOBBY, PLAYING, GAME_OVER
+    gameWidth: 800,
+    gameHeight: 600,
+    playerSize: 30,
+    bulletSpeed: 15,
+    playerSpeed: 5,
+    respawnTime: 3000
+};
+
+// Doom game functions
+function createDoomPlayer(id, username) {
+    return {
+        id: id,
+        username: username,
+        x: Math.random() * (doomGameState.gameWidth - 100) + 50,
+        y: Math.random() * (doomGameState.gameHeight - 100) + 50,
+        angle: Math.random() * Math.PI * 2,
+        health: 100,
+        state: 'ALIVE',
+        score: 0,
+        kills: 0,
+        deaths: 0,
+        lastShot: 0,
+        respawnTime: 0
+    };
+}
+
+function spawnPlayer(playerId) {
+    const player = doomGameState.players.get(playerId);
+    if (player) {
+        player.x = Math.random() * (doomGameState.gameWidth - 100) + 50;
+        player.y = Math.random() * (doomGameState.gameHeight - 100) + 50;
+        player.health = 100;
+        player.state = 'ALIVE';
+        player.respawnTime = 0;
+    }
+}
+
+function checkBulletCollisions() {
+    const bulletsToRemove = [];
+    
+    doomGameState.bullets.forEach((bullet, bulletId) => {
+        // Check bullet bounds
+        if (bullet.x < 0 || bullet.x > doomGameState.gameWidth || 
+            bullet.y < 0 || bullet.y > doomGameState.gameHeight) {
+            bulletsToRemove.push(bulletId);
+            return;
+        }
+        
+        // Check player collisions
+        doomGameState.players.forEach((player, playerId) => {
+            if (player.state === 'ALIVE' && playerId !== bullet.shooterId) {
+                const dx = bullet.x - player.x;
+                const dy = bullet.y - player.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < doomGameState.playerSize) {
+                    // Player hit!
+                    player.health -= bullet.damage;
+                    
+                    if (player.health <= 0) {
+                        player.state = 'DEAD';
+                        player.deaths++;
+                        player.respawnTime = Date.now() + doomGameState.respawnTime;
+                        
+                        // Award kill to shooter
+                        const shooter = doomGameState.players.get(bullet.shooterId);
+                        if (shooter) {
+                            shooter.kills++;
+                            shooter.score += 10;
+                        }
+                        
+                        // Broadcast player hit
+                        io.emit('doom-player-hit', {
+                            targetId: playerId,
+                            shooterId: bullet.shooterId,
+                            damage: bullet.damage,
+                            newHealth: player.health
+                        });
+                    } else {
+                        // Broadcast player hit
+                        io.emit('doom-player-hit', {
+                            targetId: playerId,
+                            shooterId: bullet.shooterId,
+                            damage: bullet.damage,
+                            newHealth: player.health
+                        });
+                    }
+                    
+                    bulletsToRemove.push(bulletId);
+                }
+            }
+        });
+    });
+    
+    // Remove hit bullets
+    bulletsToRemove.forEach(bulletId => {
+        doomGameState.bullets.delete(bulletId);
+    });
+}
+
+function updateDoomGame() {
+    // Update bullets
+    doomGameState.bullets.forEach((bullet, bulletId) => {
+        bullet.x += Math.cos(bullet.angle) * bullet.speed;
+        bullet.y += Math.sin(bullet.angle) * bullet.speed;
+    });
+    
+    // Check collisions
+    checkBulletCollisions();
+    
+    // Check respawns
+    doomGameState.players.forEach((player, playerId) => {
+        if (player.state === 'DEAD' && Date.now() > player.respawnTime) {
+            spawnPlayer(playerId);
+        }
+    });
+}
+
+// Doom game game loop
+setInterval(updateDoomGame, 1000 / 60); // 60 FPS
+
+// ========================================
+// 🎮 CHESS GAME SYSTEM
+// ========================================
+
+// Chess stats and history API endpoints
+app.get('/api/chess/stats', (req, res) => {
+    try {
+        // 🔧 FORCE REFRESH STATS TO INCLUDE PLAYER NAMES
+        chessSaveSystem.saveStats();
+        
+        const stats = chessSaveSystem.getStats();
+        
+        res.json({
+            overall: stats.overall,
+            topPlayers: stats.topPlayers,
+            recentGames: stats.recentGames
+        });
+    } catch (error) {
+        console.error('Error getting chess stats:', error);
+        res.status(500).json({ error: 'Failed to get chess stats' });
+    }
+});
+
+// 🔧 MANUAL REFRESH ENDPOINT
+app.post('/api/chess/refresh-stats', (req, res) => {
+    try {
+        console.log('🔄 Manual chess stats refresh requested');
+        
+        // Force reload all data
+        chessSaveSystem.loadStats();
+        chessSaveSystem.loadGames();
+        chessSaveSystem.loadUnfinishedGames();
+        
+        // Regenerate stats
+        chessSaveSystem.saveStats();
+        
+        const stats = chessSaveSystem.getStats();
+        
+        res.json({
+            success: true,
+            message: 'Chess stats refreshed successfully',
+            stats: {
+                overall: stats.overall,
+                topPlayers: stats.topPlayers,
+                recentGames: stats.recentGames
+            }
+        });
+    } catch (error) {
+        console.error('Error refreshing chess stats:', error);
+        res.status(500).json({ error: 'Failed to refresh chess stats' });
+    }
+});
+
+app.get('/api/chess/player/:username', (req, res) => {
+    try {
+        const { username } = req.params;
+        const playerStats = chessSaveSystem.getPlayerStats(username);
+        const gameHistory = chessSaveSystem.getPlayerGameHistory(username);
+        
+        res.json({
+            player: playerStats,
+            history: gameHistory
+        });
+    } catch (error) {
+        console.error('Error getting player stats:', error);
+        res.status(500).json({ error: 'Failed to get player stats' });
+    }
+});
+
+// NEW: Get unfinished games for a player
+app.get('/api/chess/unfinished/:username', (req, res) => {
+    try {
+        const { username } = req.params;
+        const unfinishedGames = chessSaveSystem.getUnfinishedGamesForPlayer(username);
+        
+        res.json({
+            username: username,
+            unfinishedGames: unfinishedGames.map(game => ({
+                gameId: game.gameId,
+                opponent: game.whitePlayer === username ? game.blackPlayer : game.whitePlayer,
+                playerColor: game.whitePlayer === username ? 'white' : 'black',
+                lastUpdated: game.lastUpdated,
+                moveCount: game.moves ? game.moves.length : 0,
+                startTime: game.startTime
+            }))
+        });
+    } catch (error) {
+        console.error('Error getting unfinished games:', error);
+        res.status(500).json({ error: 'Failed to get unfinished games' });
+    }
+});
+
+// NEW: Get all unfinished games (admin endpoint)
+app.get('/api/chess/unfinished', (req, res) => {
+    try {
+        const unfinishedGames = chessSaveSystem.getUnfinishedGames();
+        
+        res.json({
+            totalUnfinished: Object.keys(unfinishedGames).length,
+            games: Object.entries(unfinishedGames).map(([gameId, game]) => ({
+                gameId: gameId,
+                whitePlayer: game.whitePlayer,
+                blackPlayer: game.blackPlayer,
+                lastUpdated: game.lastUpdated,
+                moveCount: game.moves ? game.moves.length : 0,
+                startTime: game.startTime
+            }))
+        });
+    } catch (error) {
+        console.error('Error getting all unfinished games:', error);
+        res.status(500).json({ error: 'Failed to get unfinished games' });
+    }
+});
+
 // Configure CORS for cross-origin requests
 app.use(cors({
     origin: "*",
@@ -119,6 +363,10 @@ const USER_PROFILES_FILE = path.join(__dirname, 'user_profiles.json');
 // Chess game management
 const chessGames = new Map();
 const gameIdCounter = 1;
+
+// Chess save system
+const ChessSaveSystem = require('./chess-save-system');
+const chessSaveSystem = new ChessSaveSystem();
 
 // Chess game storage on X: drive
 const CHESS_GAMES_FILE = 'X:/chess_games.json';
@@ -163,6 +411,37 @@ function saveChessGames() {
 
 // Load games on startup
 loadChessGames();
+
+// ========================================
+// 🐍 SNAKE LEADERBOARD SYSTEM
+// ========================================
+
+// Snake leaderboard
+const SNAKE_LEADERBOARD_FILE = path.join(__dirname, 'snake-leaderboard.json');
+let snakeLeaderboard = [];
+
+function loadSnakeLeaderboard() {
+    try {
+        if (fs.existsSync(SNAKE_LEADERBOARD_FILE)) {
+            const data = fs.readFileSync(SNAKE_LEADERBOARD_FILE, 'utf8');
+            snakeLeaderboard = JSON.parse(data);
+            console.log(`[Snake] Loaded ${snakeLeaderboard.length} scores from disk.`);
+        }
+    } catch (e) {
+        console.error('[Snake] Failed to load leaderboard:', e);
+    }
+}
+
+function saveSnakeLeaderboard() {
+    try {
+        fs.writeFileSync(SNAKE_LEADERBOARD_FILE, JSON.stringify(snakeLeaderboard, null, 2), 'utf8');
+    } catch (e) {
+        console.error('[Snake] Failed to save leaderboard:', e);
+    }
+}
+
+// Load leaderboard on startup
+loadSnakeLeaderboard();
 
 // Clean up any corrupted games (where both players are the same)
 function cleanupCorruptedGames() {
@@ -580,6 +859,153 @@ io.on('connection', (socket) => {
         }
     });
     
+    // ========================================
+    // 🎮 DOOM GAME EVENTS
+    // ========================================
+    
+    socket.on('doom-join-game', (data) => {
+        const username = data.username || 'Player';
+        const playerId = socket.id;
+        
+        // Create new player
+        const player = createDoomPlayer(playerId, username);
+        doomGameState.players.set(playerId, player);
+        
+        // Set game state to playing if not already
+        if (doomGameState.gameState === 'LOBBY') {
+            doomGameState.gameState = 'PLAYING';
+        }
+        
+        // Send player joined confirmation
+        socket.emit('doom-game-joined', {
+            playerId: playerId,
+            player: player
+        });
+        
+        // Broadcast to other players
+        socket.broadcast.emit('doom-player-joined', {
+            playerId: playerId,
+            player: player
+        });
+        
+        // Send current game state to new player
+        socket.emit('doom-game-state', {
+            state: doomGameState.gameState,
+            players: Array.from(doomGameState.players.values()),
+            bullets: Array.from(doomGameState.bullets.values())
+        });
+        
+        console.log(`🎮 Doom: ${username} joined the game`);
+    });
+    
+    socket.on('doom-leave-game', () => {
+        const playerId = socket.id;
+        const player = doomGameState.players.get(playerId);
+        
+        if (player) {
+            doomGameState.players.delete(playerId);
+            
+            // Remove player's bullets
+            doomGameState.bullets.forEach((bullet, bulletId) => {
+                if (bullet.shooterId === playerId) {
+                    doomGameState.bullets.delete(bulletId);
+                }
+            });
+            
+            // Broadcast player left
+            socket.broadcast.emit('doom-player-left', playerId);
+            
+            console.log(`🎮 Doom: ${player.username} left the game`);
+            
+            // Check if game should end
+            if (doomGameState.players.size === 0) {
+                doomGameState.gameState = 'LOBBY';
+            }
+        }
+    });
+    
+    socket.on('doom-player-move', (data) => {
+        const playerId = socket.id;
+        const player = doomGameState.players.get(playerId);
+        
+        if (player && player.state === 'ALIVE') {
+            player.x = Math.max(doomGameState.playerSize, 
+                               Math.min(doomGameState.gameWidth - doomGameState.playerSize, data.x));
+            player.y = Math.max(doomGameState.playerSize, 
+                               Math.min(doomGameState.gameHeight - doomGameState.playerSize, data.y));
+            
+            // Broadcast movement to other players
+            socket.broadcast.emit('doom-player-update', {
+                playerId: playerId,
+                player: player
+            });
+        }
+    });
+    
+    socket.on('doom-player-aim', (data) => {
+        const playerId = socket.id;
+        const player = doomGameState.players.get(playerId);
+        
+        if (player && player.state === 'ALIVE') {
+            player.angle = data.angle;
+            
+            // Broadcast aim to other players
+            socket.broadcast.emit('doom-player-update', {
+                playerId: playerId,
+                player: player
+            });
+        }
+    });
+    
+    socket.on('doom-fire-bullet', (data) => {
+        const playerId = socket.id;
+        const player = doomGameState.players.get(playerId);
+        
+        if (player && player.state === 'ALIVE') {
+            // Check fire rate (500ms cooldown)
+            if (Date.now() - player.lastShot > 500) {
+                player.lastShot = Date.now();
+                
+                const bullet = {
+                    id: data.bulletId,
+                    shooterId: playerId,
+                    x: data.x,
+                    y: data.y,
+                    angle: data.angle,
+                    speed: doomGameState.bulletSpeed,
+                    damage: 25
+                };
+                
+                doomGameState.bullets.set(bullet.id, bullet);
+                
+                // Broadcast bullet to all players
+                io.emit('doom-bullet-fired', {
+                    bulletId: bullet.id,
+                    shooterId: playerId,
+                    bullet: bullet
+                });
+                
+                console.log(`🎮 Doom: ${player.username} fired a bullet`);
+            }
+        }
+    });
+    
+    socket.on('doom-request-respawn', (data) => {
+        const playerId = socket.id;
+        spawnPlayer(playerId);
+        
+        const player = doomGameState.players.get(playerId);
+        if (player) {
+            // Broadcast respawn to all players
+            io.emit('doom-player-update', {
+                playerId: playerId,
+                player: player
+            });
+            
+            console.log(`🎮 Doom: ${player.username} respawned`);
+        }
+    });
+    
     // Handle text messages from Android devices
     socket.on('text-message', (data) => {
         try {
@@ -909,14 +1335,18 @@ io.on('connection', (socket) => {
         }
     });
     
-    // Handle ping for keepalive (maintain connection)
+    // Handle pong response for keep-alive
+    socket.on('pong', () => {
+        console.log(`📡 Pong received from ${getUsernameFromSocket(socket) || 'unknown user'}`);
+    });
+    
+    // Handle ping from client (respond with pong)
     socket.on('ping', () => {
-        const userInfo = connectedUsers.get(socket.id);
-        if (userInfo) {
-            userInfo.lastSeen = new Date().toISOString();
-        }
+        console.log(`📡 Ping received from ${getUsernameFromSocket(socket) || 'unknown user'}, sending pong`);
         socket.emit('pong');
     });
+    
+    // Handle server responses
     
     // Handle disconnect
     socket.on('disconnect', () => {
@@ -1040,6 +1470,27 @@ io.on('connection', (socket) => {
                     console.log(`[Chess] ${username} rejoined waiting game`);
                 }
                 return;
+            }
+            
+            // NEW: Check for unfinished games between this player and others
+            const unfinishedGames = chessSaveSystem.getUnfinishedGamesForPlayer(username);
+            if (unfinishedGames.length > 0) {
+                console.log(`[Chess] Found ${unfinishedGames.length} unfinished games for ${username}`);
+                
+                // Send unfinished games to client for selection
+                socket.emit('chess:unfinished_games_found', {
+                    games: unfinishedGames.map(game => ({
+                        gameId: game.gameId,
+                        opponent: game.whitePlayer === username ? game.blackPlayer : game.whitePlayer,
+                        playerColor: game.whitePlayer === username ? 'white' : 'black',
+                        lastUpdated: game.lastUpdated,
+                        moveCount: game.moves ? game.moves.length : 0
+                    }))
+                });
+                
+                // Don't return here - allow player to also find new games
+                // The client should handle the choice between resume and new game
+                console.log(`[Chess] ${username} has unfinished games, but continuing to look for new games too`);
             }
             
             // Look for a game to join
@@ -1205,6 +1656,7 @@ io.on('connection', (socket) => {
                 // Start the game
                 game.started = true;
                 game.currentPlayer = 'white';
+                game.startTime = new Date().toISOString(); // Add start time
                 game.waitingForDiceRoll = false;
                 
                 console.log(`[Chess] Game started! White: "${game.whitePlayer}", Black: "${game.blackPlayer}"`);
@@ -1257,114 +1709,230 @@ io.on('connection', (socket) => {
 
 
     
-    socket.on('chess:make_move', (data) => {
+    // 🔧 OLD CHESS HANDLER REMOVED - USING SIMPLIFIED VERSION ONLY
+    
+    // 🔧 SIMPLIFIED CHESS MOVE HANDLER - WORKS LIKE AUDIO/TEXT
+    socket.on('chess_move', (data) => {
         try {
-            const { gameId, from, to } = data;
+            const { gameId, from, to, username, timestamp } = data;
             const game = chessGames.get(gameId);
-            const username = getUsernameFromSocket(socket);
             
-            console.log(`[Chess] Move request: username="${username}" wants to move ${from} to ${to} in game ${gameId}`);
+            console.log(`[Chess] === SIMPLE CHESS MOVE ===`);
+            console.log(`[Chess] Username: "${username}"`);
+            console.log(`[Chess] Move: ${from} to ${to}`);
+            console.log(`[Chess] Game ID: ${gameId}`);
+            console.log(`[Chess] Game exists: ${!!game}`);
+            if (game) {
+                console.log(`[Chess] Game started: ${game.started}`);
+                console.log(`[Chess] White player: ${game.whitePlayer}`);
+                console.log(`[Chess] Black player: ${game.blackPlayer}`);
+                console.log(`[Chess] Current player: ${game.currentPlayer}`);
+            }
             
+            // 🔧 BASIC VALIDATION
             if (!username) {
-                console.log(`[Chess] ERROR: No username found for socket ${socket.id}`);
-                socket.emit('error', { message: 'Username required to make moves' });
+                socket.emit('chess_error', { message: 'Username required' });
                 return;
             }
             
             if (!game) {
-                console.log(`[Chess] ERROR: Game ${gameId} not found`);
-                socket.emit('error', { message: 'Game not found' });
+                socket.emit('chess_error', { message: 'Game not found' });
                 return;
+            }
+            
+            // 🔧 AUTO-START GAME IF BOTH PLAYERS PRESENT
+            if (!game.started && game.whitePlayer && game.blackPlayer) {
+                console.log(`[Chess] Auto-starting game ${gameId}`);
+                game.started = true;
+                game.currentPlayer = 'white';
+                game.startTime = new Date().toISOString(); // Add start time
+                if (!game.board) game.board = initializeChessBoard();
+                if (!game.moves) game.moves = [];
+                
+                // 🔧 BROADCAST GAME STARTED TO ALL PLAYERS
+                io.to(gameId).emit('chess:game_started', {
+                    whitePlayer: game.whitePlayer,
+                    blackPlayer: game.blackPlayer,
+                    currentPlayer: 'white'
+                });
+                
+                saveChessGames();
             }
             
             if (!game.started) {
-                console.log(`[Chess] ERROR: Game ${gameId} not started`);
-                socket.emit('error', { message: 'Game not started' });
+                socket.emit('chess_error', { message: 'Waiting for opponent' });
                 return;
             }
             
-            console.log(`[Chess Debug] Game ${gameId} state: white="${game.whitePlayer}", black="${game.blackPlayer}", currentPlayer="${game.currentPlayer}"`);
-            
+            // 🔧 DETERMINE PLAYER COLOR
             const playerColor = game.whitePlayer === username ? 'white' : game.blackPlayer === username ? 'black' : null;
-            console.log(`[Chess Debug] User ${username} identified as ${playerColor} player`);
             
-            if (playerColor !== game.currentPlayer) {
-                console.log(`[Chess] ERROR: Not ${username}'s turn. Current player: ${game.currentPlayer}, User is: ${playerColor}`);
-                socket.emit('error', { message: 'Not your turn' });
+            if (!playerColor) {
+                socket.emit('chess_error', { message: 'Not a player in this game' });
                 return;
             }
             
-            if (isValidMove(game.board, from, to, playerColor)) {
-                const piece = game.board[from];
-                const isCapture = game.board[to] !== null;
-                const capturedPiece = game.board[to];
-                
-                // Check if this is a king capture
-                const isKingCapture = capturedPiece === 'K' || capturedPiece === 'k';
-                
-                game.board[to] = piece;
-                game.board[from] = null;
-                
-                // Save move with username
-                game.moves.push({
-                    from,
-                    to,
-                    piece,
-                    color: playerColor,
-                    username,
-                    isCapture,
-                    timestamp: new Date().toISOString()
-                });
-                
-                game.currentPlayer = game.currentPlayer === 'white' ? 'black' : 'white';
-                console.log(`[Chess] Move made: ${from} to ${to} by ${playerColor} (${username}). Next player: ${game.currentPlayer}`);
-                console.log(`[Chess Debug] Game ${gameId} turn state: white="${game.whitePlayer}", black="${game.blackPlayer}", currentPlayer="${game.currentPlayer}"`);
-                
-                // Check for check, checkmate, and king capture
-                const isCheck = isInCheck(game.board, game.currentPlayer);
-                const isCheckmate = isCheck && isCheckmate(game.board, game.currentPlayer);
-                
-                io.to(gameId).emit('chess:move_made', {
-                    from,
-                    to,
-                    piece,
-                    color: playerColor,
-                    capture: isCapture,
-                    playerName: username,
-                    isCheck: isCheck,
-                    isCheckmate: isCheckmate,
-                    isKingCapture: isKingCapture,
-                    currentPlayer: game.currentPlayer
-                });
-                
-                if (isKingCapture) {
-                    io.to(gameId).emit('chess:game_over', {
-                        winner: playerColor,
-                        reason: 'King captured'
-                    });
-                    game.ended = true;
-                } else if (isCheckmate) {
-                    io.to(gameId).emit('chess:game_over', {
-                        winner: playerColor,
-                        reason: 'Checkmate'
-                    });
-                    game.ended = true;
-                } else if (isStalemate(game.board, game.currentPlayer)) {
-                    io.to(gameId).emit('chess:game_over', {
-                        winner: null,
-                        reason: 'Stalemate'
-                    });
-                    game.ended = true;
-                }
-                
-                saveChessGames();
-            } else {
-                console.log(`[Chess] ERROR: Invalid move ${from} to ${to} by ${playerColor} (${username})`);
-                socket.emit('error', { message: 'Invalid move' });
+            // 🔧 SIMPLE TURN CHECK
+            if (game.currentPlayer !== playerColor) {
+                socket.emit('chess_error', { message: `Not your turn. It's ${game.currentPlayer}'s turn.` });
+                return;
             }
+            
+            // 🔧 SIMPLE MOVE VALIDATION
+            const piece = game.board[from];
+            if (!piece) {
+                socket.emit('chess_error', { message: 'No piece at that position' });
+                return;
+            }
+            
+            // Check if piece belongs to player
+            const isWhitePiece = piece === piece.toUpperCase();
+            if ((playerColor === 'white' && !isWhitePiece) || (playerColor === 'black' && isWhitePiece)) {
+                socket.emit('chess_error', { message: 'Not your piece' });
+                return;
+            }
+            
+            // 🔧 ENHANCED CHESS MOVE VALIDATION
+            // First check if the move is valid according to piece rules
+            const isValidMoveResult = isValidMove(game.board, from, to, playerColor);
+            if (!isValidMoveResult) {
+                socket.emit('chess_error', { message: 'Invalid move for this piece' });
+                return;
+            }
+            
+            // 🔧 CHECK IF MOVE WOULD PUT OWN KING IN CHECK
+            // Make a temporary move to test if it would put own king in check
+            const tempBoard = JSON.parse(JSON.stringify(game.board));
+            tempBoard[to] = piece;
+            tempBoard[from] = null;
+            
+            // Check if this move would put our own king in check
+            if (isInCheck(tempBoard, playerColor)) {
+                socket.emit('chess_error', { message: 'This move would put your king in check' });
+                return;
+            }
+            
+            // 🔧 MAKE THE MOVE (SIMPLE)
+            const capturedPiece = game.board[to];
+            game.board[to] = piece;
+            game.board[from] = null;
+            
+            // 🔧 SAVE MOVE
+            game.moves.push({
+                from,
+                to,
+                piece,
+                color: playerColor,
+                username,
+                isCapture: capturedPiece !== null,
+                timestamp: new Date().toISOString()
+            });
+            
+            // 🔧 SWITCH TURNS (SIMPLE)
+            game.currentPlayer = game.currentPlayer === 'white' ? 'black' : 'white';
+            
+            console.log(`[Chess] Move successful: ${from} to ${to} by ${playerColor}`);
+            console.log(`[Chess] Next player: ${game.currentPlayer}`);
+            
+            // 🔧 CHECK FOR CHECK AND CHECKMATE
+            const nextPlayerColor = game.currentPlayer;
+            const isCheck = isInCheck(game.board, nextPlayerColor);
+            const isCheckmateResult = isCheck && isCheckmate(game.board, nextPlayerColor);
+            const isStalemateResult = isStalemate(game.board, nextPlayerColor);
+            
+            console.log(`[Chess] Game state after move:`);
+            console.log(`[Chess] - Next player: ${nextPlayerColor}`);
+            console.log(`[Chess] - In check: ${isCheck}`);
+            console.log(`[Chess] - Checkmate: ${isCheckmateResult}`);
+            console.log(`[Chess] - Stalemate: ${isStalemateResult}`);
+            
+            // 🔧 BROADCAST MOVE TO ALL PLAYERS
+            console.log(`[Chess Debug] Broadcasting move with check state: isCheck=${isCheck}, isCheckmate=${isCheckmateResult}`);
+            io.to(gameId).emit('chess_move_made', {
+                from,
+                to,
+                piece,
+                color: playerColor,
+                capture: capturedPiece !== null,
+                playerName: username,
+                nextPlayer: game.currentPlayer,
+                isCheck: isCheck,
+                isCheckmate: isCheckmateResult,
+                isStalemate: isStalemateResult
+            });
+            
+            // 🔧 HANDLE GAME END CONDITIONS
+            if (isCheckmateResult) {
+                const winner = playerColor; // The player who made the move wins
+                console.log(`[Chess] CHECKMATE! ${winner} wins!`);
+                io.to(gameId).emit('chess_game_over', {
+                    winner: winner,
+                    reason: 'Checkmate',
+                    winnerName: username
+                });
+                game.ended = true;
+                
+                // Save game to chess save system
+                chessSaveSystem.recordGame({
+                    gameId: gameId,
+                    whitePlayer: game.whitePlayer,
+                    blackPlayer: game.blackPlayer,
+                    winner: winner,
+                    moves: game.moves,
+                    gameType: 'standard',
+                    startTime: game.startTime,
+                    endTime: new Date().toISOString()
+                });
+            } else if (isStalemateResult) {
+                console.log(`[Chess] STALEMATE! Game is a draw.`);
+                io.to(gameId).emit('chess_game_over', {
+                    winner: null,
+                    reason: 'Stalemate'
+                });
+                game.ended = true;
+                
+                // Save game to chess save system
+                chessSaveSystem.recordGame({
+                    gameId: gameId,
+                    whitePlayer: game.whitePlayer,
+                    blackPlayer: game.blackPlayer,
+                    winner: 'draw',
+                    moves: game.moves,
+                    gameType: 'standard',
+                    startTime: game.startTime,
+                    endTime: new Date().toISOString()
+                });
+            } else if (isCheck) {
+                console.log(`[Chess] CHECK! ${nextPlayerColor} is in check.`);
+                // Check is already included in the move_made event
+            } else if (capturedPiece === 'K' || capturedPiece === 'k') {
+                console.log(`[Chess] KING CAPTURED! ${playerColor} wins!`);
+                io.to(gameId).emit('chess_game_over', {
+                    winner: playerColor,
+                    reason: 'King captured',
+                    winnerName: username
+                });
+                game.ended = true;
+                
+                // Save game to chess save system
+                chessSaveSystem.recordGame({
+                    gameId: gameId,
+                    whitePlayer: game.whitePlayer,
+                    blackPlayer: game.blackPlayer,
+                    winner: playerColor,
+                    moves: game.moves,
+                    gameType: 'standard',
+                    startTime: game.startTime,
+                    endTime: new Date().toISOString()
+                });
+            }
+            
+            saveChessGames();
+            console.log(`[Chess] === END SIMPLE CHESS MOVE ===`);
+            
         } catch (error) {
-            console.error('[Chess] Error in make_move:', error);
-            socket.emit('error', { message: 'Failed to make move' });
+            console.error('[Chess] Error in simple chess_move:', error);
+            socket.emit('chess_error', { message: 'Failed to process move' });
         }
     });
     
@@ -1380,6 +1948,23 @@ io.on('connection', (socket) => {
             }
             
             console.log(`[Chess] ${username} leaving game ${gameId}`);
+            console.log(`[Chess] Connected users before leave: ${connectedUsers.size}`);
+            console.log(`[Chess] Connected users list:`, Array.from(connectedUsers.entries()).map(([id, info]) => ({ id, username: info?.userInfo?.username })));
+            
+            // 🔧 CONFIRM USER IS STILL CONNECTED TO MAIN APP
+            const userInfo = connectedUsers.get(socket.id);
+            if (userInfo) {
+                console.log(`[Chess] ✅ User ${username} remains connected to main app (socket: ${socket.id})`);
+                
+                // Send confirmation that user left chess but is still connected
+                socket.emit('chess:left_game_confirmation', {
+                    message: 'You have left the chess game but remain connected to the app',
+                    gameId: gameId,
+                    username: username
+                });
+            } else {
+                console.log(`[Chess] ❌ WARNING: User ${username} not found in connected users after leaving chess game`);
+            }
             
             socket.leave(gameId);
             if (game.spectators) {
@@ -1394,6 +1979,45 @@ io.on('connection', (socket) => {
                 } else if (game.blackPlayer === username) {
                     game.blackPlayer = null;
                     console.log(`[Chess] Removed ${username} as black player`);
+                }
+                
+                // NEW: Save unfinished game if game was in progress
+                if (game.started && game.moves && game.moves.length > 0) {
+                    console.log(`[Chess] Saving unfinished game ${gameId} with ${game.moves.length} moves`);
+                    
+                    // Create player key for the game
+                    const remainingPlayer = game.whitePlayer || game.blackPlayer;
+                    const playerKey = chessSaveSystem.getPlayerKey(remainingPlayer, username);
+                    
+                    // Save as unfinished game
+                    const unfinishedGameData = {
+                        gameId: gameId,
+                        whitePlayer: game.whitePlayer || username,
+                        blackPlayer: game.blackPlayer || username,
+                        currentPlayer: game.currentPlayer,
+                        board: game.board,
+                        moves: game.moves,
+                        startTime: game.startTime,
+                        playerKey: playerKey,
+                        isUnfinished: true
+                    };
+                    
+                    chessSaveSystem.saveUnfinishedGame(gameId, unfinishedGameData);
+                    
+                    // Notify remaining player about saved game
+                    if (remainingPlayer) {
+                        const remainingSocketId = userSockets.get(remainingPlayer);
+                        if (remainingSocketId) {
+                            const remainingSocket = io.sockets.sockets.get(remainingSocketId);
+                            if (remainingSocket) {
+                                remainingSocket.emit('chess:game_saved_unfinished', {
+                                    gameId: gameId,
+                                    opponent: username,
+                                    message: 'Game saved - you can resume when opponent returns'
+                                });
+                            }
+                        }
+                    }
                 }
                 
                 // Reset game state if a player left
@@ -1417,6 +2041,18 @@ io.on('connection', (socket) => {
             }
             
             saveChessGames();
+            
+            // 🔧 VERIFY USER IS STILL IN CONNECTED USERS LIST
+            const userStillConnected = connectedUsers.get(socket.id);
+            if (userStillConnected) {
+                console.log(`[Chess] ✅ CONFIRMED: User ${username} still in connected users after leaving chess game`);
+                console.log(`[Chess] Connected users count after leave: ${connectedUsers.size}`);
+                console.log(`[Chess] Connected users list after leave:`, Array.from(connectedUsers.entries()).map(([id, info]) => ({ id, username: info?.userInfo?.username })));
+            } else {
+                console.log(`[Chess] ❌ ERROR: User ${username} was removed from connected users after leaving chess game`);
+                console.log(`[Chess] Connected users count after leave: ${connectedUsers.size}`);
+                console.log(`[Chess] Connected users list after leave:`, Array.from(connectedUsers.entries()).map(([id, info]) => ({ id, username: info?.userInfo?.username })));
+            }
             
         } catch (error) {
             console.error('Error in chess:leave_game:', error);
@@ -1446,15 +2082,258 @@ io.on('connection', (socket) => {
                     reason: 'Resignation'
                 });
                 
+                // 🔧 SAVE GAME TO CHESS STATS SYSTEM
+                chessSaveSystem.recordGame({
+                    gameId: gameId,
+                    whitePlayer: game.whitePlayer,
+                    blackPlayer: game.blackPlayer,
+                    winner: winner,
+                    moves: game.moves || [],
+                    gameType: 'standard',
+                    startTime: game.startTime,
+                    endTime: new Date().toISOString()
+                });
+                
                 chessGames.delete(gameId);
                 saveChessGames(); // Save after resigning
-                console.log(`[Chess] ${username} resigned game ${gameId}`);
+                console.log(`[Chess] ${username} resigned game ${gameId} - game recorded to stats`);
             }
         } catch (error) {
             console.error('Error in chess:resign_game:', error);
         }
     });
     
+    // NEW: Resume unfinished game
+    socket.on('chess:resume_game', (data) => {
+        try {
+            const { gameId } = data;
+            const username = getUsernameFromSocket(socket);
+            
+            if (!username) {
+                socket.emit('error', { message: 'Username required to resume game' });
+                return;
+            }
+            
+            // Get the unfinished game data
+            const unfinishedGame = chessSaveSystem.getUnfinishedGame(gameId);
+            if (!unfinishedGame) {
+                socket.emit('error', { message: 'Unfinished game not found' });
+                return;
+            }
+            
+            // Check if user is a player in this game
+            if (unfinishedGame.whitePlayer !== username && unfinishedGame.blackPlayer !== username) {
+                socket.emit('error', { message: 'You are not a player in this game' });
+                return;
+            }
+            
+            // Check if opponent is online
+            const opponentUsername = unfinishedGame.whitePlayer === username ? unfinishedGame.blackPlayer : unfinishedGame.whitePlayer;
+            const opponentSocketId = userSockets.get(opponentUsername);
+            const opponentOnline = opponentSocketId && io.sockets.sockets.has(opponentSocketId);
+            
+            if (!opponentOnline) {
+                socket.emit('chess:resume_failed', {
+                    message: 'Opponent is not online. Cannot resume game.',
+                    opponent: opponentUsername
+                });
+                return;
+            }
+            
+            // Create new game from unfinished game data
+            const newGameId = `resumed_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            const resumedGame = {
+                id: newGameId,
+                whitePlayer: unfinishedGame.whitePlayer,
+                blackPlayer: unfinishedGame.blackPlayer,
+                started: true,
+                ended: false,
+                currentPlayer: unfinishedGame.currentPlayer || 'white',
+                board: unfinishedGame.board || initializeChessBoard(),
+                moves: unfinishedGame.moves || [],
+                startTime: unfinishedGame.startTime || new Date().toISOString(),
+                isResumed: true,
+                originalGameId: gameId
+            };
+            
+            // Add game to active games
+            chessGames.set(newGameId, resumedGame);
+            
+            // Join both players to the game
+            socket.join(newGameId);
+            
+            // Find and notify opponent
+            const opponentSocket = io.sockets.sockets.get(opponentSocketId);
+            if (opponentSocket) {
+                opponentSocket.join(newGameId);
+                
+                const playerColor = resumedGame.whitePlayer === username ? 'white' : 'black';
+                const opponentColor = playerColor === 'white' ? 'black' : 'white';
+                
+                // Notify both players
+                socket.emit('chess:game_resumed', {
+                    gameId: newGameId,
+                    playerColor: playerColor,
+                    isMyTurn: resumedGame.currentPlayer === playerColor,
+                    board: resumedGame.board,
+                    moves: resumedGame.moves,
+                    opponent: opponentUsername
+                });
+                
+                opponentSocket.emit('chess:game_resumed', {
+                    gameId: newGameId,
+                    playerColor: opponentColor,
+                    isMyTurn: resumedGame.currentPlayer === opponentColor,
+                    board: resumedGame.board,
+                    moves: resumedGame.moves,
+                    opponent: username
+                });
+                
+                // Remove from unfinished games
+                chessSaveSystem.removeUnfinishedGame(gameId);
+                
+                console.log(`[Chess] Game ${gameId} resumed as ${newGameId} between ${username} and ${opponentUsername}`);
+                saveChessGames();
+            }
+            
+        } catch (error) {
+            console.error('Error in chess:resume_game:', error);
+            socket.emit('error', { message: 'Failed to resume game' });
+        }
+    });
+
+    // NEW: Start new game (ignore unfinished games)
+    socket.on('chess:start_new_game', (data) => {
+        try {
+            const username = getUsernameFromSocket(socket);
+            if (!username) {
+                socket.emit('error', { message: 'Username required to start new game' });
+                return;
+            }
+            
+            console.log(`[Chess] ${username} starting new game (ignoring unfinished games)`);
+            
+            // Continue with normal game finding logic
+            // Look for a game to join
+            for (const [gameId, game] of chessGames.entries()) {
+                if (!game.ended && !game.started && game.whitePlayer && !game.blackPlayer) {
+                    // Found a game to join
+                    game.blackPlayer = username;
+                    game.started = true;
+                    game.currentPlayer = 'white';
+                    
+                    // Ensure board is initialized
+                    if (!game.board) {
+                        game.board = initializeChessBoard();
+                    }
+                    if (!game.moves) {
+                        game.moves = [];
+                    }
+                    
+                    socket.join(gameId);
+                    
+                    // Notify both players
+                    socket.emit('chess:game_joined', {
+                        gameId: gameId,
+                        color: 'black',
+                        started: true,
+                        isMyTurn: false
+                    });
+                    
+                    // Find and notify the white player
+                    for (const [socketId, userInfo] of connectedUsers.entries()) {
+                        if (userInfo?.userInfo?.username === game.whitePlayer) {
+                            const whitePlayerSocket = io.sockets.sockets.get(socketId);
+                            if (whitePlayerSocket) {
+                                whitePlayerSocket.emit('chess:game_joined', {
+                                    gameId: gameId,
+                                    color: 'white',
+                                    started: true,
+                                    isMyTurn: true
+                                });
+                            }
+                            break;
+                        }
+                    }
+                    
+                    // Broadcast game started to room
+                    io.to(gameId).emit('chess:game_started', {
+                        whitePlayer: game.whitePlayer,
+                        blackPlayer: game.blackPlayer,
+                        currentPlayer: 'white'
+                    });
+                    
+                    console.log(`[Chess] ${username} joined ${game.whitePlayer}'s game. Game started!`);
+                    saveChessGames();
+                    return;
+                }
+            }
+            
+            // No game to join, create new one
+            const gameId = `game_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            const game = {
+                id: gameId,
+                whitePlayer: username,
+                blackPlayer: null,
+                started: false,
+                ended: false,
+                currentPlayer: 'white',
+                board: initializeChessBoard(),
+                moves: [],
+                createdAt: new Date().toISOString()
+            };
+            
+            chessGames.set(gameId, game);
+            socket.join(gameId);
+            
+            socket.emit('chess:game_joined', {
+                gameId: gameId,
+                color: null,
+                started: false,
+                isMyTurn: false
+            });
+            
+            console.log(`[Chess] ${username} created new game ${gameId}, waiting for opponent`);
+            saveChessGames();
+            
+        } catch (error) {
+            console.error('Error in chess:start_new_game:', error);
+            socket.emit('error', { message: 'Failed to start new game' });
+        }
+    });
+
+    // NEW: Clear unfinished games for a player
+    socket.on('chess:clear_unfinished_games', (data) => {
+        try {
+            const username = getUsernameFromSocket(socket);
+            if (!username) {
+                socket.emit('error', { message: 'Username required to clear unfinished games' });
+                return;
+            }
+            
+            console.log(`[Chess] ${username} clearing unfinished games`);
+            
+            // Get all unfinished games for this player
+            const unfinishedGames = chessSaveSystem.getUnfinishedGamesForPlayer(username);
+            
+            // Remove each unfinished game
+            for (const game of unfinishedGames) {
+                chessSaveSystem.removeUnfinishedGame(game.gameId);
+            }
+            
+            socket.emit('chess:unfinished_games_cleared', {
+                message: `Cleared ${unfinishedGames.length} unfinished games`,
+                count: unfinishedGames.length
+            });
+            
+            console.log(`[Chess] Cleared ${unfinishedGames.length} unfinished games for ${username}`);
+            
+        } catch (error) {
+            console.error('Error in chess:clear_unfinished_games:', error);
+            socket.emit('error', { message: 'Failed to clear unfinished games' });
+        }
+    });
+
     socket.on('chess:save_game', (data) => {
         try {
             const { gameId } = data;
@@ -1490,33 +2369,64 @@ io.on('connection', (socket) => {
         try {
             const { gameId, playerName, expectedTurn, playerColor } = data;
             const game = chessGames.get(gameId);
+            const username = getUsernameFromSocket(socket);
             
-            if (!game) {
-                socket.emit('chess:error', { message: 'Game not found' });
+            console.log(`[Chess] === TURN STATE SYNC REQUEST ===`);
+            console.log(`[Chess] Username: "${username}" for game ${gameId}`);
+            console.log(`[Chess] Client expects: turn=${expectedTurn}, color=${playerColor}`);
+            
+            if (!username) {
+                console.log(`[Chess] ERROR: No username found for turn sync`);
+                socket.emit('chess:error', { message: 'Username required for turn sync' });
                 return;
             }
             
-            console.log(`[Chess Debug] Turn state sync request from ${playerName}`);
-            console.log(`[Chess Debug] Client expects: isMyTurn=${expectedTurn}, playerColor=${playerColor}`);
-            console.log(`[Chess Debug] Server state: currentPlayer=${game.currentPlayer}, whitePlayer=${game.whitePlayer}, blackPlayer=${game.blackPlayer}`);
+            if (!game) {
+                console.log(`[Chess] ERROR: Game ${gameId} not found for turn sync`);
+                socket.emit('chess:error', { message: 'Game not found for turn sync' });
+                return;
+            }
             
-            // Determine if it's actually this player's turn
-            const isActuallyMyTurn = game.currentPlayer === playerColor;
+            if (!game.started) {
+                console.log(`[Chess] ERROR: Game ${gameId} not started for turn sync`);
+                socket.emit('chess:error', { message: 'Game not started for turn sync' });
+                return;
+            }
             
-            console.log(`[Chess Debug] Server determines: isMyTurn=${isActuallyMyTurn}`);
+            // Determine the player's actual color
+            const actualPlayerColor = game.whitePlayer === username ? 'white' : game.blackPlayer === username ? 'black' : null;
+            
+            if (!actualPlayerColor) {
+                console.log(`[Chess] ERROR: User ${username} not a player in game ${gameId}`);
+                socket.emit('chess:error', { message: 'Not a player in this game' });
+                return;
+            }
+            
+            // Determine if it's actually their turn
+            const isActuallyMyTurn = game.currentPlayer === actualPlayerColor;
+            
+            console.log(`[Chess] Server game state: white="${game.whitePlayer}", black="${game.blackPlayer}", currentPlayer="${game.currentPlayer}"`);
+            console.log(`[Chess] User ${username} is ${actualPlayerColor} player`);
+            console.log(`[Chess] Is it their turn? ${isActuallyMyTurn}`);
+            console.log(`[Chess] Client expected: ${expectedTurn}, Server says: ${isActuallyMyTurn}`);
             
             // Send the correct turn state back to the client
-            socket.emit('chess:turn_state_sync', {
+            const syncResponse = {
                 isMyTurn: isActuallyMyTurn,
                 currentPlayer: game.currentPlayer,
-                playerColor: playerColor
-            });
+                playerColor: actualPlayerColor,
+                gameStarted: game.started,
+                gameId: gameId
+            };
             
-            console.log(`[Chess Debug] Sent turn state sync response to ${playerName}`);
+            socket.emit('chess:turn_state_sync', syncResponse);
+            
+            console.log(`[Chess] Sent sync response:`, syncResponse);
+            console.log(`[Chess] === END TURN STATE SYNC ===`);
             
         } catch (error) {
-            console.error('Error in chess:sync_turn_state:', error);
-            socket.emit('chess:error', { message: 'Error syncing turn state' });
+            console.error('[Chess] Error in sync_turn_state:', error);
+            socket.emit('chess:error', { message: 'Failed to sync turn state' });
         }
     });
 
@@ -1564,6 +2474,168 @@ io.on('connection', (socket) => {
         } catch (error) {
             console.error('Error in chess:respond_draw:', error);
         }
+    });
+    
+    // 🔧 DEBUG ENDPOINT - CHECK GAME STATE
+    socket.on('chess:debug_state', (data) => {
+        try {
+            const { gameId } = data;
+            const game = chessGames.get(gameId);
+            const username = getUsernameFromSocket(socket);
+            
+            console.log(`[Chess Debug] === GAME STATE DEBUG ===`);
+            console.log(`[Chess Debug] Game ID: ${gameId}`);
+            console.log(`[Chess Debug] Username: ${username}`);
+            
+            if (!game) {
+                console.log(`[Chess Debug] Game not found`);
+                socket.emit('chess:debug_response', { error: 'Game not found' });
+                return;
+            }
+            
+            const playerColor = game.whitePlayer === username ? 'white' : game.blackPlayer === username ? 'black' : null;
+            
+            const debugInfo = {
+                gameId: game.id,
+                whitePlayer: game.whitePlayer,
+                blackPlayer: game.blackPlayer,
+                started: game.started,
+                ended: game.ended,
+                currentPlayer: game.currentPlayer,
+                playerColor: playerColor,
+                isMyTurn: game.currentPlayer === playerColor,
+                moveCount: game.moves ? game.moves.length : 0,
+                boardState: game.board,
+                lastMove: game.moves && game.moves.length > 0 ? game.moves[game.moves.length - 1] : null
+            };
+            
+            console.log(`[Chess Debug] Debug info:`, JSON.stringify(debugInfo, null, 2));
+            socket.emit('chess:debug_response', debugInfo);
+            
+        } catch (error) {
+            console.error('[Chess] Error in debug_state:', error);
+            socket.emit('chess:debug_response', { error: error.message });
+        }
+    });
+    
+    // 🔧 FORCE SYNC TURN STATE
+    socket.on('chess:force_sync', (data) => {
+        try {
+            const { gameId } = data;
+            const game = chessGames.get(gameId);
+            const username = getUsernameFromSocket(socket);
+            
+            console.log(`[Chess] Force sync requested for game ${gameId} by ${username}`);
+            
+            if (!game) {
+                socket.emit('chess_error', { message: 'Game not found' });
+                return;
+            }
+            
+            const playerColor = game.whitePlayer === username ? 'white' : game.blackPlayer === username ? 'black' : null;
+            
+            if (!playerColor) {
+                socket.emit('chess_error', { message: 'You are not a player in this game' });
+                return;
+            }
+            
+            // Force correct turn state
+            const isMyTurn = game.currentPlayer === playerColor;
+            
+            socket.emit('chess:turn_state_sync', {
+                isMyTurn: isMyTurn,
+                currentPlayer: game.currentPlayer,
+                playerColor: playerColor,
+                gameStarted: game.started,
+                gameId: game.id
+            });
+            
+            console.log(`[Chess] Force sync complete: ${username} (${playerColor}) - isMyTurn: ${isMyTurn}`);
+            
+        } catch (error) {
+            console.error('[Chess] Error in force_sync:', error);
+            socket.emit('chess_error', { message: 'Failed to sync turn state' });
+        }
+    });
+
+    // NEW: Get current game state
+    socket.on('chess:get_game_state', (data) => {
+        try {
+            const { gameId } = data;
+            const username = getUsernameFromSocket(socket);
+            
+            if (!username) {
+                socket.emit('error', { message: 'Username required to get game state' });
+                return;
+            }
+            
+            const game = chessGames.get(gameId);
+            if (!game) {
+                socket.emit('error', { message: 'Game not found' });
+                return;
+            }
+            
+            // Check if user is a player in this game
+            if (game.whitePlayer !== username && game.blackPlayer !== username) {
+                socket.emit('error', { message: 'You are not a player in this game' });
+                return;
+            }
+            
+            const playerColor = game.whitePlayer === username ? 'white' : 'black';
+            const isMyTurn = game.currentPlayer === playerColor;
+            
+            // Send current game state
+            socket.emit('chess:game_state', {
+                gameId: gameId,
+                currentPlayer: game.currentPlayer,
+                isMyTurn: isMyTurn,
+                board: game.board || initializeChessBoard(),
+                moves: game.moves || [],
+                whitePlayer: game.whitePlayer,
+                blackPlayer: game.blackPlayer,
+                started: game.started,
+                ended: game.ended
+            });
+            
+            console.log(`[Chess] Sent game state to ${username} for game ${gameId}`);
+            
+        } catch (error) {
+            console.error('Error in chess:get_game_state:', error);
+            socket.emit('error', { message: 'Failed to get game state' });
+        }
+    });
+
+    // ========================================
+    // 🐍 SNAKE GAME EVENTS
+    // ========================================
+
+    // SNAKE: Submit score
+    socket.on('snake:submit_score', (data) => {
+        try {
+            const { username, score, time, pieces } = data;
+            if (!username || typeof score !== 'number' || typeof time !== 'number' || typeof pieces !== 'number') {
+                socket.emit('snake:submit_result', { success: false, error: 'Invalid data' });
+                return;
+            }
+            // Add to leaderboard
+            snakeLeaderboard.push({ username, score, time, pieces, timestamp: new Date().toISOString() });
+            // Sort by score DESC, then time ASC (lower time is better)
+            snakeLeaderboard.sort((a, b) => b.score - a.score || a.time - b.time);
+            // Keep only top 10
+            if (snakeLeaderboard.length > 10) snakeLeaderboard = snakeLeaderboard.slice(0, 10);
+            saveSnakeLeaderboard();
+            socket.emit('snake:submit_result', { success: true });
+            io.emit('snake:leaderboard_updated', { leaderboard: snakeLeaderboard });
+            console.log(`[Snake] Score submitted: ${username} - Score: ${score}, Time: ${time}, Pieces: ${pieces}`);
+        } catch (e) {
+            socket.emit('snake:submit_result', { success: false, error: 'Server error' });
+            console.error('[Snake] Error submitting score:', e);
+        }
+    });
+
+    // SNAKE: Get leaderboard
+    socket.on('snake:get_leaderboard', () => {
+        socket.emit('snake:leaderboard', { leaderboard: snakeLeaderboard });
     });
 });
 
@@ -1850,6 +2922,8 @@ function isValidKingMove(from, to) {
 }
 
 function isInCheck(board, color) {
+    console.log(`[Chess Debug] Checking if ${color} is in check...`);
+    
     // Find the king
     const kingPiece = color === 'white' ? 'K' : 'k';
     let kingPosition = null;
@@ -1861,19 +2935,29 @@ function isInCheck(board, color) {
         }
     }
     
-    if (!kingPosition) return false;
+    if (!kingPosition) {
+        console.log(`[Chess Debug] No ${color} king found on board!`);
+        return false;
+    }
+    
+    console.log(`[Chess Debug] ${color} king found at ${kingPosition}`);
     
     // Check if any opponent piece can capture the king
     const opponentColor = color === 'white' ? 'black' : 'white';
+    console.log(`[Chess Debug] Checking if any ${opponentColor} pieces can capture king at ${kingPosition}`);
+    
     for (let square in board) {
         const piece = board[square];
         if (piece && getPieceColor(piece) === opponentColor) {
+            console.log(`[Chess Debug] Checking ${opponentColor} piece ${piece} at ${square} against king at ${kingPosition}`);
             if (isValidMove(board, square, kingPosition, opponentColor)) {
+                console.log(`[Chess Debug] CHECK! ${opponentColor} piece ${piece} at ${square} can capture king at ${kingPosition}`);
                 return true;
             }
         }
     }
     
+    console.log(`[Chess Debug] ${color} is NOT in check`);
     return false;
 }
 
@@ -1882,38 +2966,66 @@ function getPieceColor(piece) {
 }
 
 function hasValidMoves(board, color) {
+    console.log(`[Chess Debug] Checking if ${color} has valid moves...`);
+    
     // Check if any piece of the given color has valid moves
     for (let square in board) {
         const piece = board[square];
         if (piece && getPieceColor(piece) === color) {
-            for (let targetSquare in board) {
-                // Skip if same square
-                if (square === targetSquare) continue;
-                
-                // Check if this move would be valid
-                if (isValidMove(board, square, targetSquare, color)) {
-                    return true;
+            // Check all possible squares on the board (including empty ones)
+            for (let row = 1; row <= 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const targetSquare = `${String.fromCharCode('a'.charCodeAt(0) + col)}${row}`;
+                    
+                    // Skip if same square
+                    if (square === targetSquare) continue;
+                    
+                    // Check if this move would be valid
+                    if (isValidMove(board, square, targetSquare, color)) {
+                        // Make a temporary move to check if it would put own king in check
+                        const tempBoard = JSON.parse(JSON.stringify(board));
+                        const pieceToMove = tempBoard[square];
+                        tempBoard[targetSquare] = pieceToMove;
+                        tempBoard[square] = null;
+                        
+                        // If this move doesn't put own king in check, it's a legal move
+                        if (!isInCheck(tempBoard, color)) {
+                            console.log(`[Chess Debug] ${color} has valid move: ${square} to ${targetSquare}`);
+                            return true;
+                        } else {
+                            console.log(`[Chess Debug] Move ${square} to ${targetSquare} would put ${color} king in check`);
+                        }
+                    }
                 }
             }
         }
     }
+    
+    console.log(`[Chess Debug] ${color} has no valid moves`);
     return false;
 }
 
 function isCheckmate(board, color) {
+    console.log(`[Chess Debug] Checking if ${color} is checkmated...`);
+    
     // Only detect checkmate if king is in check and has no legal moves
     if (!isInCheck(board, color)) {
+        console.log(`[Chess Debug] ${color} is not in check, so not checkmated`);
         return false;
     }
+    
+    console.log(`[Chess Debug] ${color} is in check, checking for escape moves...`);
     
     // Check if any move can get out of check
     for (let square in board) {
         const piece = board[square];
         if (piece && getPieceColor(piece) === color) {
+            console.log(`[Chess Debug] Checking ${color} piece ${piece} at ${square} for escape moves...`);
             for (let targetSquare in board) {
                 if (square === targetSquare) continue;
                 
                 if (isValidMove(board, square, targetSquare, color)) {
+                    console.log(`[Chess Debug] Found valid move: ${square} to ${targetSquare}`);
                     // Make a temporary move to check if it gets out of check
                     const tempBoard = JSON.parse(JSON.stringify(board));
                     const pieceToMove = tempBoard[square];
@@ -1922,19 +3034,37 @@ function isCheckmate(board, color) {
                     
                     // If this move gets us out of check, it's not checkmate
                     if (!isInCheck(tempBoard, color)) {
+                        console.log(`[Chess Debug] Move ${square} to ${targetSquare} gets out of check - NOT checkmated`);
                         return false;
+                    } else {
+                        console.log(`[Chess Debug] Move ${square} to ${targetSquare} doesn't get out of check`);
                     }
                 }
             }
         }
     }
     
+    console.log(`[Chess Debug] CHECKMATE! ${color} has no escape moves`);
     return true;
 }
 
 function isStalemate(board, color) {
-    // Only detect stalemate in very specific situations
-    // For now, return false to avoid false positives
-    // In a real implementation, this would be more sophisticated
-    return false;
+    console.log(`[Chess Debug] Checking if ${color} is stalemated...`);
+    
+    // Stalemate occurs when player is NOT in check but has no legal moves
+    if (isInCheck(board, color)) {
+        console.log(`[Chess Debug] ${color} is in check, so not stalemated`);
+        return false;
+    }
+    
+    console.log(`[Chess Debug] ${color} is not in check, checking for legal moves...`);
+    
+    // Check if player has any legal moves
+    if (hasValidMoves(board, color)) {
+        console.log(`[Chess Debug] ${color} has legal moves, not stalemated`);
+        return false;
+    }
+    
+    console.log(`[Chess Debug] STALEMATE! ${color} has no legal moves but is not in check`);
+    return true;
 } 

@@ -3,6 +3,7 @@
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">172.94.3.216</domain>
         <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">app--dependable-unity-production.up.railway.app</domain>
     </domain-config>
     <base-config cleartextTrafficPermitted="true">
         <trust-anchors>

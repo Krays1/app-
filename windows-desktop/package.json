@@ -1,0 +1,41 @@
+{
+  "name": "zell0-desktop",
+  "version": "1.0.0",
+  "description": "Zell0 Desktop App with Audio Support",
+  "main": "simple-desktop.js",
+  "scripts": {
+    "start": "electron simple-desktop.js",
+    "start-enhanced": "electron enhanced-desktop.js",
+    "start-audio": "electron simple-desktop.js",
+    "audio-diagnostic": "electron audio-diagnostic.js",
+    "test": "node test-simple.js",
+    "test-audio": "node test-message-sending.js"
+  },
+  "keywords": ["zell0", "desktop", "audio", "communication"],
+  "author": "Zell0 Team",
+  "license": "MIT",
+  "dependencies": {
+    "electron": "^28.0.0",
+    "socket.io-client": "^4.7.0"
+  },
+  "devDependencies": {
+    "electron-builder": "^24.0.0"
+  },
+  "build": {
+    "appId": "com.zell0.desktop",
+    "productName": "Zell0 Desktop",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "simple-desktop.js",
+      "simple-index.html",
+      "simple-renderer.js",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    }
+  }
+}

@@ -16,22 +16,21 @@ class NetworkManager {
         private const val TAG = "NetworkManager"
         
         // ========================================
-        // 🔧 SERVER CONFIGURATION - VPN IP
+        // 🔧 SERVER CONFIGURATION - RAILWAY CLOUD
         // ========================================
-        // This app is configured to use VPN IP: 172.94.3.216
+        // This app is configured to use Railway cloud server
         // 
-        // To start the server:
-        // 1. Navigate to windows-server folder
-        // 2. Double-click: START-VPN-SERVER.bat
-        // 3. Server will start on 172.94.3.216:3001
+        // Server is deployed on Railway at:
+        // https://app--dependable-unity-production.up.railway.app
         // 
         // Features enabled:
         // - Real-time text messaging
         // - Push-to-talk voice messaging
         // - Multiple Android device support
+        // - Secure HTTPS connection
         // ========================================
         
-        private const val SERVER_URL = "http://172.94.3.216:3001" // ✅ Using VPN IP as specified
+        private const val SERVER_URL = "https://app--dependable-unity-production.up.railway.app" // ✅ Using Railway cloud server
         
         // Port configuration (usually don't need to change these)
         private const val AUDIO_PORT = 8080
@@ -72,7 +71,7 @@ class NetworkManager {
         
         try {
             val options = IO.Options().apply {
-                transports = arrayOf("websocket", "polling")
+                transports = arrayOf("polling") // Force polling only, no websocket
                 timeout = 20000
                 forceNew = true
             }
@@ -621,4 +620,288 @@ class NetworkManager {
     fun getSocket(): Socket? {
         return socket
     }
+
+    // SNAKE: Submit score
+    fun submitSnakeScore(username: String, score: Int, time: Int, pieces: Int, callback: (Boolean, String?) -> Unit) {
+        Log.d(TAG, "Submitting Snake score: username=$username, score=$score, time=$time, pieces=$pieces, connected=$isConnected")
+        if (!isConnected) {
+            Log.e(TAG, "Not connected to server, cannot submit score")
+            callback(false, "Not connected")
+            return
+        }
+        try {
+            val data = JSONObject().apply {
+                put("username", username)
+                put("score", score)
+                put("time", time)
+                put("pieces", pieces)
+            }
+            Log.d(TAG, "Emitting snake:submit_score with data: $data")
+            socket?.emit("snake:submit_score", data)
+            socket?.once("snake:submit_result") { args ->
+                val obj = args[0] as JSONObject
+                val success = obj.optBoolean("success", false)
+                val error = obj.optString("error", null)
+                Log.d(TAG, "Received snake:submit_result: success=$success, error=$error")
+                callback(success, error)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error submitting Snake score", e)
+            callback(false, e.message)
+        }
+    }
+
+    // SNAKE: Get leaderboard
+    fun getSnakeLeaderboard(callback: (List<SnakeScore>) -> Unit) {
+        Log.d(TAG, "Getting Snake leaderboard, connected=$isConnected")
+        if (!isConnected) {
+            Log.e(TAG, "Not connected to server, cannot get leaderboard")
+            callback(emptyList())
+            return
+        }
+        try {
+            Log.d(TAG, "Emitting snake:get_leaderboard")
+            socket?.emit("snake:get_leaderboard")
+            socket?.once("snake:leaderboard") { args ->
+                val obj = args[0] as JSONObject
+                val arr = obj.optJSONArray("leaderboard")
+                val result = mutableListOf<SnakeScore>()
+                if (arr != null) {
+                    for (i in 0 until arr.length()) {
+                        val item = arr.getJSONObject(i)
+                        result.add(
+                            SnakeScore(
+                                username = item.optString("username", ""),
+                                score = item.optInt("score", 0),
+                                time = item.optInt("time", 0),
+                                pieces = item.optInt("pieces", 0),
+                                timestamp = item.optString("timestamp", "")
+                            )
+                        )
+                    }
+                }
+                Log.d(TAG, "Received snake:leaderboard with ${result.size} scores")
+                callback(result)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting Snake leaderboard", e)
+            callback(emptyList())
+        }
+    }
+
+    // SNAKE: Listen for leaderboard updates
+    fun setSnakeLeaderboardListener(listener: (List<SnakeScore>) -> Unit) {
+        socket?.on("snake:leaderboard_updated") { args ->
+            val obj = args[0] as JSONObject
+            val arr = obj.optJSONArray("leaderboard")
+            val result = mutableListOf<SnakeScore>()
+            if (arr != null) {
+                for (i in 0 until arr.length()) {
+                    val item = arr.getJSONObject(i)
+                    result.add(
+                        SnakeScore(
+                            username = item.optString("username", ""),
+                            score = item.optInt("score", 0),
+                            time = item.optInt("time", 0),
+                            pieces = item.optInt("pieces", 0),
+                            timestamp = item.optString("timestamp", "")
+                        )
+                    )
+                }
+            }
+            listener(result)
+        }
+    }
+
+    data class SnakeScore(
+        val username: String,
+        val score: Int,
+        val time: Int,
+        val pieces: Int,
+        val timestamp: String
+    )
+
+    // PACMAN: Submit score
+    fun submitPacmanScore(username: String, score: Int, level: Int, dotsEaten: Int, callback: (Boolean) -> Unit = {}) {
+        Log.d(TAG, "Submitting Pac-Man score: username=$username, score=$score, level=$level, dotsEaten=$dotsEaten, connected=$isConnected")
+        if (!isConnected) {
+            Log.e(TAG, "Not connected to server, cannot submit score")
+            callback(false)
+            return
+        }
+        try {
+            val data = JSONObject().apply {
+                put("username", username)
+                put("score", score)
+                put("level", level)
+                put("dotsEaten", dotsEaten)
+            }
+            Log.d(TAG, "Emitting pacman:submit_score with data: $data")
+            socket?.emit("pacman:submit_score", data)
+            
+            // Listen for response
+            socket?.once("pacman:score_submitted") { args ->
+                val obj = args[0] as JSONObject
+                val success = obj.optBoolean("success", false)
+                Log.d(TAG, "Received pacman:score_submitted: success=$success")
+                callback(success)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error submitting Pac-Man score", e)
+            callback(false)
+        }
+    }
+
+    // PACMAN: Get leaderboard
+    fun getPacmanLeaderboard(callback: (Boolean, String?) -> Unit) {
+        Log.d(TAG, "Getting Pac-Man leaderboard, connected=$isConnected")
+        if (!isConnected) {
+            Log.e(TAG, "Not connected to server, cannot get leaderboard")
+            callback(false, "Not connected")
+            return
+        }
+        try {
+            Log.d(TAG, "Emitting pacman:get_leaderboard")
+            socket?.emit("pacman:get_leaderboard")
+            socket?.once("pacman:leaderboard") { args ->
+                val obj = args[0] as JSONObject
+                val success = obj.optBoolean("success", false)
+                val data = obj.optString("data", "[]")
+                Log.d(TAG, "Received pacman:leaderboard: success=$success, data=$data")
+                callback(success, data)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting Pac-Man leaderboard", e)
+            callback(false, e.message)
+        }
+    }
+
+    // PACMAN: Listen for leaderboard updates
+    fun setPacmanLeaderboardListener(listener: (String) -> Unit) {
+        socket?.on("pacman:leaderboard_updated") { args ->
+            val obj = args[0] as JSONObject
+            val data = obj.optString("data", "[]")
+            listener(data)
+        }
+    }
+
+    data class PacmanScore(
+        val username: String,
+        val score: Int,
+        val level: Int,
+        val dotsEaten: Int,
+        val timestamp: Long = System.currentTimeMillis()
+    )
+
+    data class PacmanUserStats(
+        val username: String,
+        val totalScore: Int,
+        val gamesPlayed: Int,
+        val highestScore: Int,
+        val totalDotsEaten: Int,
+        val highestLevel: Int
+    )
+
+    // OPENARENA: Submit match result
+    fun submitOpenArenaResult(username: String, kills: Int, deaths: Int, score: Int, gameMode: String, map: String, callback: (Boolean) -> Unit = {}) {
+        Log.d(TAG, "Submitting OpenArena result: username=$username, kills=$kills, deaths=$deaths, score=$score, mode=$gameMode, map=$map")
+        if (!isConnected) {
+            Log.e(TAG, "Not connected to server, cannot submit result")
+            callback(false)
+            return
+        }
+        try {
+            val data = JSONObject().apply {
+                put("username", username)
+                put("kills", kills)
+                put("deaths", deaths)
+                put("score", score)
+                put("gameMode", gameMode)
+                put("map", map)
+                put("timestamp", System.currentTimeMillis())
+            }
+            Log.d(TAG, "Emitting openarena:submit_result with data: $data")
+            socket?.emit("openarena:submit_result", data)
+            
+            // Listen for response
+            socket?.once("openarena:result_submitted") { args ->
+                val obj = args[0] as JSONObject
+                val success = obj.optBoolean("success", false)
+                Log.d(TAG, "Received openarena:result_submitted: success=$success")
+                callback(success)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error submitting OpenArena result", e)
+            callback(false)
+        }
+    }
+
+    // OPENARENA: Get leaderboard
+    fun getOpenArenaLeaderboard(callback: (Boolean, String?) -> Unit) {
+        Log.d(TAG, "Getting OpenArena leaderboard, connected=$isConnected")
+        if (!isConnected) {
+            Log.e(TAG, "Not connected to server, cannot get leaderboard")
+            callback(false, "Not connected")
+            return
+        }
+        try {
+            Log.d(TAG, "Emitting openarena:get_leaderboard")
+            socket?.emit("openarena:get_leaderboard")
+            socket?.once("openarena:leaderboard") { args ->
+                val obj = args[0] as JSONObject
+                val success = obj.optBoolean("success", false)
+                val data = obj.optString("data", "[]")
+                Log.d(TAG, "Received openarena:leaderboard: success=$success, data=$data")
+                callback(success, data)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting OpenArena leaderboard", e)
+            callback(false, e.message)
+        }
+    }
+
+    // OPENARENA: Get server status
+    fun getOpenArenaServerStatus(callback: (Boolean, String, Int) -> Unit) {
+        Log.d(TAG, "Getting OpenArena server status, connected=$isConnected")
+        if (!isConnected) {
+            Log.e(TAG, "Not connected to server, cannot get server status")
+            callback(false, "Offline", 0)
+            return
+        }
+        try {
+            Log.d(TAG, "Emitting openarena:get_status")
+            socket?.emit("openarena:get_status")
+            socket?.once("openarena:server_status") { args ->
+                val obj = args[0] as JSONObject
+                val status = obj.optString("status", "Unknown")
+                val players = obj.optInt("players", 0)
+                Log.d(TAG, "Received openarena:server_status: status=$status, players=$players")
+                callback(true, status, players)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting OpenArena server status", e)
+            callback(false, "Error", 0)
+        }
+    }
+
+    data class OpenArenaResult(
+        val username: String,
+        val kills: Int,
+        val deaths: Int,
+        val score: Int,
+        val gameMode: String,
+        val map: String,
+        val timestamp: Long = System.currentTimeMillis()
+    )
+
+    data class OpenArenaUserStats(
+        val username: String,
+        val totalKills: Int,
+        val totalDeaths: Int,
+        val totalScore: Int,
+        val gamesPlayed: Int,
+        val favoriteGameMode: String,
+        val favoriteMap: String,
+        val kdr: Float
+    )
 } 

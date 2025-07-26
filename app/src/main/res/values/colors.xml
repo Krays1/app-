@@ -21,4 +21,11 @@
     <color name="warning_color">#FFFF9800</color>
     <color name="orange">#FFFF9800</color>
     <color name="blue">#FF006FCD</color>
+    <color name="purple">#FF9C27B0</color>
+    <color name="gold">#FFFFD700</color>
+    <color name="silver">#FFC0C0C0</color>
+    <color name="bronze">#FFCD7F32</color>
+    <color name="background_dark">#FF1A1A1A</color>
+    <color name="text_white">#FFFFFFFF</color>
+    <color name="text_gray">#FF888888</color>
 </resources>

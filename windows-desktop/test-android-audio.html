@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android Audio Compatibility Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #888;
+        }
+
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .test-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 15px;
+        }
+
+        .test-description {
+            font-size: 14px;
+            color: #ccc;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .test-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .status-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-icon.pending {
+            background: #ff9800;
+            color: white;
+        }
+
+        .status-icon.success {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .status-icon.error {
+            background: #f44336;
+            color: white;
+        }
+
+        .test-details {
+            font-size: 12px;
+            color: #888;
+            margin-left: 30px;
+        }
+
+        .controls {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            background: #45a049;
+        }
+
+        .btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            border-left: 4px solid #2196F3;
+        }
+
+        .results-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2196F3;
+            margin-bottom: 15px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        .result-value {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .result-value.success {
+            color: #4CAF50;
+        }
+
+        .result-value.error {
+            color: #f44336;
+        }
+
+        .log {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #ccc;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #4CAF50;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Android Audio Compatibility Test</h1>
+            <p class="subtitle">Testing PCM 16-bit audio format compatibility between Android and Desktop</p>
+        </div>
+
+        <div class="test-section">
+            <h3 class="test-title">Test Overview</h3>
+            <p class="test-description">
+                This test verifies that the desktop app can properly handle Android PCM 16-bit audio format.
+                It tests audio format conversion, WAV header creation, and bidirectional audio compatibility.
+            </p>
+            
+            <div class="test-status">
+                <div class="status-icon pending" id="overall-status">⏳</div>
+                <span id="overall-text">Ready to start test</span>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3 class="test-title">Test Components</h3>
+            
+            <div class="test-status">
+                <div class="status-icon pending" id="pcm-status">⏳</div>
+                <span id="pcm-text">PCM 16-bit Support</span>
+            </div>
+            <div class="test-details" id="pcm-details">Waiting to test...</div>
+            
+            <div class="test-status">
+                <div class="status-icon pending" id="wav-status">⏳</div>
+                <span id="wav-text">WAV Header Creation</span>
+            </div>
+            <div class="test-details" id="wav-details">Waiting to test...</div>
+            
+            <div class="test-status">
+                <div class="status-icon pending" id="android-status">⏳</div>
+                <span id="android-text">Android Format Compatibility</span>
+            </div>
+            <div class="test-details" id="android-details">Waiting to test...</div>
+            
+            <div class="test-status">
+                <div class="status-icon pending" id="desktop-status">⏳</div>
+                <span id="desktop-text">Desktop to Android Conversion</span>
+            </div>
+            <div class="test-details" id="desktop-details">Waiting to test...</div>
+            
+            <div class="test-status">
+                <div class="status-icon pending" id="playback-status">⏳</div>
+                <span id="playback-text">Android to Desktop Playback</span>
+            </div>
+            <div class="test-details" id="playback-details">Waiting to test...</div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="start-test-btn" onclick="startTest()">Start Test</button>
+            <button class="btn" id="clear-log-btn" onclick="clearLog()">Clear Log</button>
+        </div>
+
+        <div class="results" id="results-section" style="display: none;">
+            <h3 class="results-title">Test Results</h3>
+            <div id="results-content"></div>
+        </div>
+
+        <div class="log" id="log-output">Test log will appear here...</div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        
+        let testRunning = false;
+        let logOutput = '';
+
+        // Update test status
+        function updateTestStatus(testId, status, text, details = '') {
+            const statusIcon = document.getElementById(`${testId}-status`);
+            const statusText = document.getElementById(`${testId}-text`);
+            const statusDetails = document.getElementById(`${testId}-details`);
+            
+            statusIcon.className = `status-icon ${status}`;
+            statusText.textContent = text;
+            
+            if (details) {
+                statusDetails.textContent = details;
+            }
+            
+            if (status === 'pending') {
+                statusIcon.innerHTML = '<div class="loading"></div>';
+            } else if (status === 'success') {
+                statusIcon.textContent = '✅';
+            } else if (status === 'error') {
+                statusIcon.textContent = '❌';
+            }
+        }
+
+        // Add log entry
+        function addLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logOutput += `[${timestamp}] ${message}\n`;
+            document.getElementById('log-output').textContent = logOutput;
+        }
+
+        // Clear log
+        function clearLog() {
+            logOutput = '';
+            document.getElementById('log-output').textContent = 'Test log cleared...';
+        }
+
+        // Start the test
+        async function startTest() {
+            if (testRunning) return;
+            
+            testRunning = true;
+            document.getElementById('start-test-btn').disabled = true;
+            document.getElementById('start-test-btn').textContent = 'Testing...';
+            
+            addLog('Starting Android audio compatibility test...');
+            
+            // Reset all status indicators
+            updateTestStatus('overall', 'pending', 'Test in progress...');
+            updateTestStatus('pcm', 'pending', 'Testing PCM 16-bit Support...');
+            updateTestStatus('wav', 'pending', 'Testing WAV Header Creation...');
+            updateTestStatus('android', 'pending', 'Testing Android Format Compatibility...');
+            updateTestStatus('desktop', 'pending', 'Testing Desktop to Android Conversion...');
+            updateTestStatus('playback', 'pending', 'Testing Android to Desktop Playback...');
+            
+            try {
+                // Run the test via IPC
+                const results = await ipcRenderer.invoke('test-android-audio');
+                
+                addLog('Test completed successfully');
+                addLog(`PCM Support: ${results.pcmSupport ? '✅' : '❌'}`);
+                addLog(`WAV Header Creation: ${results.wavHeaderCreation ? '✅' : '❌'}`);
+                addLog(`Android Format Compatibility: ${results.androidFormatCompatibility ? '✅' : '❌'}`);
+                addLog(`Desktop to Android Conversion: ${results.desktopToAndroidConversion ? '✅' : '❌'}`);
+                addLog(`Android to Desktop Playback: ${results.androidToDesktopPlayback ? '✅' : '❌'}`);
+                
+                // Update status indicators based on results
+                updateTestStatus('pcm', results.pcmSupport ? 'success' : 'error', 
+                    'PCM 16-bit Support', results.pcmSupport ? 'PCM 16-bit format supported' : 'PCM 16-bit format not supported');
+                
+                updateTestStatus('wav', results.wavHeaderCreation ? 'success' : 'error',
+                    'WAV Header Creation', results.wavHeaderCreation ? 'WAV headers created successfully' : 'WAV header creation failed');
+                
+                updateTestStatus('android', results.androidFormatCompatibility ? 'success' : 'error',
+                    'Android Format Compatibility', results.androidFormatCompatibility ? 'Android format compatible' : 'Android format incompatible');
+                
+                updateTestStatus('desktop', results.desktopToAndroidConversion ? 'success' : 'error',
+                    'Desktop to Android Conversion', results.desktopToAndroidConversion ? 'Conversion successful' : 'Conversion failed');
+                
+                updateTestStatus('playback', results.androidToDesktopPlayback ? 'success' : 'error',
+                    'Android to Desktop Playback', results.androidToDesktopPlayback ? 'Playback successful' : 'Playback failed');
+                
+                // Calculate overall result
+                const totalTests = 5;
+                const passedTests = [results.pcmSupport, results.wavHeaderCreation, results.androidFormatCompatibility, 
+                                   results.desktopToAndroidConversion, results.androidToDesktopPlayback].filter(Boolean).length;
+                
+                const overallSuccess = passedTests === totalTests;
+                updateTestStatus('overall', overallSuccess ? 'success' : 'error',
+                    overallSuccess ? 'All tests passed!' : `${passedTests}/${totalTests} tests passed`);
+                
+                // Show results
+                showResults(results, passedTests, totalTests);
+                
+            } catch (error) {
+                addLog(`Test failed with error: ${error.message}`);
+                updateTestStatus('overall', 'error', 'Test failed');
+            } finally {
+                testRunning = false;
+                document.getElementById('start-test-btn').disabled = false;
+                document.getElementById('start-test-btn').textContent = 'Start Test';
+            }
+        }
+
+        // Show test results
+        function showResults(results, passedTests, totalTests) {
+            const resultsSection = document.getElementById('results-section');
+            const resultsContent = document.getElementById('results-content');
+            
+            resultsContent.innerHTML = `
+                <div class="result-item">
+                    <span class="result-label">Overall Result:</span>
+                    <span class="result-value ${passedTests === totalTests ? 'success' : 'error'}">
+                        ${passedTests}/${totalTests} tests passed
+                    </span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">PCM 16-bit Support:</span>
+                    <span class="result-value ${results.pcmSupport ? 'success' : 'error'}">
+                        ${results.pcmSupport ? '✅' : '❌'}
+                    </span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">WAV Header Creation:</span>
+                    <span class="result-value ${results.wavHeaderCreation ? 'success' : 'error'}">
+                        ${results.wavHeaderCreation ? '✅' : '❌'}
+                    </span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Android Format Compatibility:</span>
+                    <span class="result-value ${results.androidFormatCompatibility ? 'success' : 'error'}">
+                        ${results.androidFormatCompatibility ? '✅' : '❌'}
+                    </span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Desktop to Android Conversion:</span>
+                    <span class="result-value ${results.desktopToAndroidConversion ? 'success' : 'error'}">
+                        ${results.desktopToAndroidConversion ? '✅' : '❌'}
+                    </span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Android to Desktop Playback:</span>
+                    <span class="result-value ${results.androidToDesktopPlayback ? 'success' : 'error'}">
+                        ${results.androidToDesktopPlayback ? '✅' : '❌'}
+                    </span>
+                </div>
+            `;
+            
+            resultsSection.style.display = 'block';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            addLog('Android Audio Compatibility Test initialized');
+            addLog('Click "Start Test" to begin testing...');
+        });
+    </script>
+</body>
+</html> 

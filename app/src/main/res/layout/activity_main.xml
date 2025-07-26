@@ -135,6 +135,48 @@
                 android:scaleType="fitCenter"
                 android:padding="0dp" />
 
+            <!-- Snake Button -->
+            <ImageButton
+                android:id="@+id/snakeButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="4dp"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="Snake"
+                android:src="@drawable/ic_snake"
+                android:scaleType="fitCenter"
+                android:padding="0dp" />
+
+            <!-- Pac-Man Button -->
+            <ImageButton
+                android:id="@+id/pacmanButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="4dp"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="Pac-Man"
+                android:src="@drawable/ic_pacman_simple"
+                android:scaleType="fitCenter"
+                android:padding="0dp" />
+
+            <!-- OpenArena Button -->
+            <ImageButton
+                android:id="@+id/openarenaButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="4dp"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="OpenArena"
+                android:src="@drawable/ic_openarena"
+                android:scaleType="fitCenter"
+                android:padding="0dp" />
+
         </LinearLayout>
 
     </LinearLayout>

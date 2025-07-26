@@ -3,5 +3,18 @@
     <style name="Base.Theme.Zell0" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        
+        <!-- Override Material3 button styling to prevent purple colors -->
+        <item name="android:buttonStyle">@style/RedButtonStyle</item>
+        <item name="materialButtonStyle">@style/RedButtonStyle</item>
+    </style>
+    
+    <!-- Custom red button style to override Material3 defaults -->
+    <style name="RedButtonStyle" parent="Widget.Material3.Button">
+        <item name="android:background">@drawable/circle_button_red_selector</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="backgroundTint">@null</item>
+        <item name="cornerRadius">28dp</item>
     </style>
 </resources>

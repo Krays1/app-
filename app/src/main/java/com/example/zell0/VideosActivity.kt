@@ -18,7 +18,7 @@ import java.io.File
 import java.io.IOException
 
 class VideosActivity : AppCompatActivity() {
-    private val serverUrl = "http://172.94.3.216:3001" // Your VPN server IP
+    private val serverUrl = "https://app--dependable-unity-production.up.railway.app" // Your Railway cloud server
     private val PICK_VIDEO_REQUEST = 1
     private lateinit var adapter: VideoAdapter
     private val videos = mutableListOf<Video>()

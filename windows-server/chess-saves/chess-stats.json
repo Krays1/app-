@@ -1,0 +1,221 @@
+{
+  "overall": {
+    "totalGames": 12,
+    "totalWins": 14,
+    "totalDraws": 2,
+    "uniquePlayers": 7
+  },
+  "topPlayers": [
+    {
+      "name": "krays1",
+      "games": 11,
+      "wins": 7,
+      "losses": 4,
+      "draws": 0,
+      "winRate": "63.6",
+      "firstGame": "2025-07-20T10:43:24.334Z",
+      "lastGame": "2025-07-20T18:08:27.335Z"
+    },
+    {
+      "name": "Alice",
+      "games": 2,
+      "wins": 1,
+      "losses": 0,
+      "draws": 1,
+      "winRate": "50.0",
+      "firstGame": "2025-07-20T12:17:05.948Z",
+      "lastGame": "2025-07-20T12:17:05.960Z"
+    },
+    {
+      "name": "Charlie",
+      "games": 2,
+      "wins": 1,
+      "losses": 0,
+      "draws": 1,
+      "winRate": "50.0",
+      "firstGame": "2025-07-20T12:17:05.959Z",
+      "lastGame": "2025-07-20T12:17:05.960Z"
+    },
+    {
+      "name": "abbhi86",
+      "games": 2,
+      "wins": 1,
+      "losses": 1,
+      "draws": 0,
+      "winRate": "50.0",
+      "firstGame": "2025-07-20T18:07:40.385Z",
+      "lastGame": "2025-07-20T18:08:27.335Z"
+    },
+    {
+      "name": "DJDELBOY23",
+      "games": 8,
+      "wins": 3,
+      "losses": 5,
+      "draws": 0,
+      "winRate": "37.5",
+      "firstGame": "2025-07-20T10:45:20.888Z",
+      "lastGame": "2025-07-20T18:06:09.485Z"
+    },
+    {
+      "name": "mijnbattlefield3",
+      "games": 3,
+      "wins": 1,
+      "losses": 2,
+      "draws": 0,
+      "winRate": "33.3",
+      "firstGame": "2025-07-20T10:43:24.334Z",
+      "lastGame": "2025-07-20T10:53:04.957Z"
+    },
+    {
+      "name": "Bob",
+      "games": 2,
+      "wins": 0,
+      "losses": 2,
+      "draws": 0,
+      "winRate": "0.0",
+      "firstGame": "2025-07-20T12:17:05.948Z",
+      "lastGame": "2025-07-20T12:17:05.959Z"
+    }
+  ],
+  "recentGames": [
+    {
+      "whitePlayer": "abbhi86",
+      "blackPlayer": "krays1",
+      "winner": "krays1",
+      "duration": "Unknown",
+      "endTime": "20/07/2025, 19:08:27"
+    },
+    {
+      "whitePlayer": "abbhi86",
+      "blackPlayer": "krays1",
+      "winner": "abbhi86",
+      "duration": "Unknown",
+      "endTime": "20/07/2025, 19:07:40"
+    },
+    {
+      "whitePlayer": "DJDELBOY23",
+      "blackPlayer": "krays1",
+      "winner": "DJDELBOY23",
+      "duration": "Unknown",
+      "endTime": "20/07/2025, 19:06:09"
+    },
+    {
+      "whitePlayer": "krays1",
+      "blackPlayer": "DJDELBOY23",
+      "winner": "DJDELBOY23",
+      "duration": "Unknown",
+      "endTime": "20/07/2025, 14:25:03"
+    },
+    {
+      "whitePlayer": "krays1",
+      "blackPlayer": "DJDELBOY23",
+      "winner": "DJDELBOY23",
+      "duration": "Unknown",
+      "endTime": "20/07/2025, 13:44:11"
+    },
+    {
+      "whitePlayer": "krays1",
+      "blackPlayer": "DJDELBOY23",
+      "winner": "krays1",
+      "duration": "Unknown",
+      "endTime": "20/07/2025, 13:42:50"
+    },
+    {
+      "whitePlayer": "krays1",
+      "blackPlayer": "DJDELBOY23",
+      "winner": "krays1",
+      "duration": "Unknown",
+      "endTime": "20/07/2025, 13:41:04"
+    },
+    {
+      "whitePlayer": "krays1",
+      "blackPlayer": "DJDELBOY23",
+      "winner": "krays1",
+      "duration": "Unknown",
+      "endTime": "20/07/2025, 13:31:26"
+    },
+    {
+      "whitePlayer": "Alice",
+      "blackPlayer": "Charlie",
+      "winner": "Draw",
+      "duration": "Unknown",
+      "endTime": "20/07/2025, 13:17:05"
+    },
+    {
+      "whitePlayer": "Bob",
+      "blackPlayer": "Charlie",
+      "winner": "Charlie",
+      "duration": "Unknown",
+      "endTime": "20/07/2025, 13:17:05"
+    }
+  ],
+  "players": {
+    "krays1": {
+      "games": 11,
+      "wins": 7,
+      "losses": 4,
+      "draws": 0,
+      "winRate": "63.6",
+      "firstGame": "2025-07-20T10:43:24.334Z",
+      "lastGame": "2025-07-20T18:08:27.335Z"
+    },
+    "mijnbattlefield3": {
+      "games": 3,
+      "wins": 1,
+      "losses": 2,
+      "draws": 0,
+      "winRate": "33.3",
+      "firstGame": "2025-07-20T10:43:24.334Z",
+      "lastGame": "2025-07-20T10:53:04.957Z"
+    },
+    "DJDELBOY23": {
+      "games": 8,
+      "wins": 3,
+      "losses": 5,
+      "draws": 0,
+      "winRate": "37.5",
+      "firstGame": "2025-07-20T10:45:20.888Z",
+      "lastGame": "2025-07-20T18:06:09.485Z"
+    },
+    "Alice": {
+      "games": 2,
+      "wins": 1,
+      "losses": 0,
+      "draws": 1,
+      "winRate": "50.0",
+      "firstGame": "2025-07-20T12:17:05.948Z",
+      "lastGame": "2025-07-20T12:17:05.960Z"
+    },
+    "Bob": {
+      "games": 2,
+      "wins": 0,
+      "losses": 2,
+      "draws": 0,
+      "winRate": "0.0",
+      "firstGame": "2025-07-20T12:17:05.948Z",
+      "lastGame": "2025-07-20T12:17:05.959Z"
+    },
+    "Charlie": {
+      "games": 2,
+      "wins": 1,
+      "losses": 0,
+      "draws": 1,
+      "winRate": "50.0",
+      "firstGame": "2025-07-20T12:17:05.959Z",
+      "lastGame": "2025-07-20T12:17:05.960Z"
+    },
+    "abbhi86": {
+      "games": 2,
+      "wins": 1,
+      "losses": 1,
+      "draws": 0,
+      "winRate": "50.0",
+      "firstGame": "2025-07-20T18:07:40.385Z",
+      "lastGame": "2025-07-20T18:08:27.335Z"
+    }
+  },
+  "totalGames": 27,
+  "totalWins": 14,
+  "lastUpdated": "2025-07-22T17:06:33.990Z",
+  "totalDraws": 2
+}

@@ -164,13 +164,13 @@ class LoginActivity : AppCompatActivity() {
             clearAllData(this)
         }, 500)
         
-        // Check if user is already logged in (only if remember login was enabled)
-        if (sharedPrefs.getBoolean(KEY_IS_LOGGED_IN, false) && isPhoneDevice()) {
+        // Check if user is already logged in (enabled for all devices)
+        if (sharedPrefs.getBoolean(KEY_IS_LOGGED_IN, false)) {
             Log.d(TAG, "Remember login enabled - auto-navigating to main activity")
             navigateToMainActivity()
             return
         } else {
-            Log.d(TAG, "Remember login disabled or not phone device - showing login screen")
+            Log.d(TAG, "Remember login disabled - showing login screen")
         }
         
         setContentView(R.layout.activity_login)
@@ -190,14 +190,13 @@ class LoginActivity : AppCompatActivity() {
         freshStartButton = findViewById(R.id.freshStartButton)
         rememberLoginCheckbox = findViewById(R.id.rememberLoginCheckbox)
         
-        // Check if this is a phone device and show remember login option
-        if (isPhoneDevice()) {
-            rememberLoginCheckbox.visibility = View.VISIBLE
-            Log.d(TAG, "Phone device detected - showing remember login option")
-        } else {
-            rememberLoginCheckbox.visibility = View.GONE
-            Log.d(TAG, "Tablet/other device detected - hiding remember login option")
-        }
+        // Show remember login option for all devices
+        rememberLoginCheckbox.visibility = View.VISIBLE
+        Log.d(TAG, "Remember login option shown for all devices")
+        
+        // Auto-enable remember login for all devices by default
+        rememberLoginCheckbox.isChecked = true
+        Log.d(TAG, "Remember login auto-enabled for all devices")
         
         // Don't load saved username - let user enter fresh data
         // This prevents the app from remembering previous usernames
@@ -309,12 +308,12 @@ class LoginActivity : AppCompatActivity() {
             return
         }
         
-        // Save user credentials (only if remember login is checked on phone)
-        if (rememberLogin && isPhoneDevice()) {
+        // Save user credentials (enabled for all devices)
+        if (rememberLogin) {
             saveUserCredentials(username)
             Log.d(TAG, "Remember login enabled - credentials saved")
         } else {
-            Log.d(TAG, "Remember login disabled or not phone device - credentials not saved")
+            Log.d(TAG, "Remember login disabled - credentials not saved")
         }
         
         // Navigate to main activity
@@ -420,15 +419,5 @@ class LoginActivity : AppCompatActivity() {
         Log.d(TAG, "Fresh start completed - new device ID will be generated on next launch")
     }
     
-    private fun isPhoneDevice(): Boolean {
-        val displayMetrics = resources.displayMetrics
-        val screenWidth = displayMetrics.widthPixels / displayMetrics.density
-        val screenHeight = displayMetrics.heightPixels / displayMetrics.density
-        
-        // Consider it a phone if screen width is less than 600dp (typical tablet breakpoint)
-        val isPhone = screenWidth < 600
-        
-        Log.d(TAG, "Screen dimensions: ${screenWidth}dp x ${screenHeight}dp, isPhone: $isPhone")
-        return isPhone
-    }
+    // Removed isPhoneDevice() function - no longer needed since remember login works on all devices
 } 
