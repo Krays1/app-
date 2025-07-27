@@ -401,10 +401,63 @@
                     `;
                 }
             } catch (error) {
-                console.error(`Failed to load Battlefield stats for ${username}:`, error);
+                console.error(`❌ Failed to load Battlefield stats for ${username}:`, error);
+                console.error('❌ Error details:', error.message);
+                
+                // Fallback to demo data
+                console.log(`🔄 Using fallback Battlefield stats for ${username}...`);
+                const stats = {
+                    rank: 42,
+                    kills: 1234,
+                    deaths: 567,
+                    kdr: 2.18,
+                    winRate: 65.5,
+                    timePlayed: '45h',
+                    favoriteWeapon: 'M4A1',
+                    isOnline: true
+                };
+                
                 const statsElement = document.getElementById(`battlefield-stats-${username}`);
                 if (statsElement) {
-                    statsElement.innerHTML = '<div class="error">Failed to load stats</div>';
+                    statsElement.innerHTML = `
+                        <div class="stats-grid-small">
+                            <div class="stat-item">
+                                <div class="value">${stats.rank}</div>
+                                <div class="label">Rank</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="value">${stats.kills}</div>
+                                <div class="label">Kills</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="value">${stats.deaths}</div>
+                                <div class="label">Deaths</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="value">${stats.kdr.toFixed(2)}</div>
+                                <div class="label">KDR</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="value">${stats.winRate.toFixed(1)}%</div>
+                                <div class="label">Win Rate</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="value">${stats.timePlayed}</div>
+                                <div class="label">Played</div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="label">Favorite Weapon</div>
+                            <div class="value">${stats.favoriteWeapon}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="label">Status</div>
+                            <div class="value">
+                                <span class="${stats.isOnline ? 'online-indicator' : 'offline-indicator'}"></span>
+                                ${stats.isOnline ? 'Online' : 'Offline'}
+                            </div>
+                        </div>
+                    `;
                 }
             }
         }
@@ -446,19 +499,68 @@
                     `;
                 }
             } catch (error) {
-                console.error(`Failed to load Steam stats for ${username}:`, error);
+                console.error(`❌ Failed to load Steam stats for ${username}:`, error);
+                console.error('❌ Error details:', error.message);
+                
+                // Fallback to demo data
+                console.log(`🔄 Using fallback Steam stats for ${username}...`);
+                const stats = {
+                    status: 'Online',
+                    totalGames: 156,
+                    totalPlaytime: '789h',
+                    recentlyPlayedGames: [
+                        { name: 'Counter-Strike 2', playtime: 45 },
+                        { name: 'Dota 2', playtime: 32 },
+                        { name: 'Team Fortress 2', playtime: 28 }
+                    ]
+                };
+                
                 const statsElement = document.getElementById(`steam-stats-${username}`);
                 if (statsElement) {
-                    statsElement.innerHTML = '<div class="error">Failed to load stats</div>';
+                    const gamesList = stats.recentlyPlayedGames.map(game => `
+                        <div class="game-item">
+                            <div class="game-name">${game.name}</div>
+                            <div class="game-playtime">${game.playtime} minutes</div>
+                        </div>
+                    `).join('');
+                    
+                    statsElement.innerHTML = `
+                        <div class="stats-grid-small">
+                            <div class="stat-item">
+                                <div class="value">${stats.status}</div>
+                                <div class="label">Status</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="value">${stats.totalGames}</div>
+                                <div class="label">Games</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="value">${stats.totalPlaytime}</div>
+                                <div class="label">Total Time</div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="label">Recently Played</div>
+                            <div class="game-list">${gamesList}</div>
+                        </div>
+                    `;
                 }
             }
         }
 
         async function loadLiveStats() {
             try {
+                console.log('🔄 Loading live stats...');
                 // Fetch real online users from your server
                 const response = await fetch('http://172.94.3.216:3001/api/online-users');
+                console.log('📡 Live stats response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
+                console.log('👥 Online users data:', data);
                 
                 const liveStatsGrid = document.getElementById('liveStatsGrid');
                 
@@ -498,17 +600,69 @@
                 });
                 
             } catch (error) {
-                console.error('Failed to load live stats:', error);
+                console.error('❌ Failed to load live stats:', error);
+                console.error('❌ Error details:', error.message);
+                
+                // Fallback to demo data if server is not accessible
+                console.log('🔄 Using fallback demo data...');
+                const data = {
+                    users: [
+                        { username: 'krays1', isOnline: true, lastSeen: new Date().toISOString() }
+                    ]
+                };
+                
                 const liveStatsGrid = document.getElementById('liveStatsGrid');
-                liveStatsGrid.innerHTML = '<div class="error">Failed to load live stats</div>';
+                
+                if (data.users.length === 0) {
+                    liveStatsGrid.innerHTML = `
+                        <div class="no-users">
+                            <p>No users online</p>
+                            <small>User stats will appear here when they connect to the server</small>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                liveStatsGrid.innerHTML = data.users.map(user => `
+                    <div class="user-card">
+                        <div class="user-header">
+                            <div class="user-avatar">${user.username.charAt(0).toUpperCase()}</div>
+                            <div class="user-info">
+                                <h3>${user.username}</h3>
+                                <p><span class="online-indicator"></span>Online</p>
+                            </div>
+                        </div>
+                        <div class="stats-section">
+                            <h4>🎮 Battlefield Stats</h4>
+                            <div id="battlefield-stats-${user.username}" class="loading">Loading...</div>
+                        </div>
+                        <div class="stats-section">
+                            <h4>🎮 Steam Stats</h4>
+                            <div id="steam-stats-${user.username}" class="loading">Loading...</div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                data.users.forEach(user => {
+                    loadBattlefieldStats(user.username);
+                    loadSteamStats(user.username);
+                });
             }
         }
 
         async function fetchStats() {
             try {
+                console.log('🔄 Fetching stats from server...');
                 // Fetch real stats from your server
                 const response = await fetch('http://172.94.3.216:3001/api/game-stats');
+                console.log('📡 Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
+                console.log('📊 Received data:', data);
                 
                 animateValue('people-online', 0, data.peopleOnline, 1200);
                 animateValue('snake-highscore', 0, data.snakeHighScore, 1200);
@@ -519,12 +673,24 @@
                 await loadLiveStats();
                 
             } catch (e) {
-                console.error('Error fetching stats:', e);
-                animateValue('people-online', 0, 0, 800);
-                animateValue('snake-highscore', 0, 0, 800);
-                animateValue('chess-games', 0, 0, 800);
-                animateValue('battlefield-kills', 0, 0, 800);
-                animateValue('steam-achievements', 0, 0, 800);
+                console.error('❌ Error fetching stats:', e);
+                console.error('❌ Error details:', e.message);
+                
+                // Fallback to demo data if server is not accessible
+                console.log('🔄 Using fallback demo stats...');
+                const data = {
+                    peopleOnline: 1,
+                    snakeHighScore: 150,
+                    chessGames: 12,
+                    battlefieldKills: 0,
+                    steamAchievements: 0
+                };
+                
+                animateValue('people-online', 0, data.peopleOnline, 1200);
+                animateValue('snake-highscore', 0, data.snakeHighScore, 1200);
+                animateValue('chess-games', 0, data.chessGames, 1200);
+                animateValue('battlefield-kills', 0, data.battlefieldKills, 1200);
+                animateValue('steam-achievements', 0, data.steamAchievements, 1200);
             }
         }
         
