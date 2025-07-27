@@ -1,1 +1,19 @@
-styles.css
+# Node.js dependencies
+node_modules/
+package.json
+package-lock.json
+
+# Server files (these belong in the Android project)
+server-*.js
+test-*.js
+*.md
+!.gitignore
+!readme.txt
+
+# IDE files
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
